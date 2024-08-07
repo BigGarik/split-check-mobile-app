@@ -10,7 +10,8 @@ export default function Profile() {
         alignItems: 'center',
       }}
     >
-      <Text>This is the Profile screen.</Text>
+      <Text>profile screen
+      </Text>
     </View>
   );
 }

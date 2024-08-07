@@ -1,6 +1,5 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-// @ts-ignore
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 export default function RootLayout() {

@@ -4,6 +4,7 @@ import * as ExpoCamera from 'expo-camera';
 
 interface CameraComponentProps {
   onClose: () => void;
+  // @ts-ignore
   onCapture: (photo: ExpoCamera.CameraPhoto) => void;
 }
 

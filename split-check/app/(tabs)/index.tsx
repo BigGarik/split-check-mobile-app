@@ -1,16 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar } from 'react-native';
 import * as ExpoCamera from 'expo-camera';
-import * as FileSystem from 'expo-file-system';
-// import uuid from 'react-native-uuid';
 import { CameraComponent } from '@/app/HomeScreen/CameraComponent';
 import CustomButton from '@/app/HomeScreen/CustomButton';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { handleSendImage } from '@/app/HomeScreen/handleSendImage';
 
-export default function Index() {
+type RootStackParamList = {
+  Index: undefined;
+  BillDetails: { data: { select: string; itemName: string; quantity: string; price: string }[] };
+};
+
+type IndexNavigationProp = StackNavigationProp<RootStackParamList, 'Index'>;
+type IndexRouteProp = RouteProp<RootStackParamList, 'Index'>;
+
+type Props = {
+  navigation: IndexNavigationProp;
+  route: IndexRouteProp;
+};
+
+export default function Index({ navigation }: Props) {
   const [hasPermission, setHasPermission] = useState<ExpoCamera.PermissionStatus | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<ExpoCamera.CameraPhoto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const mockData = Array.from({ length: 20 }, (_, index) => ({
+    select: 'Select',
+    itemName: `Item ${index + 1}`,
+    quantity: (index + 1).toString(),
+    price: `$${(index + 1) * 10}.00`,
+  }));
 
   useEffect(() => {
     const requestPermission = async () => {
@@ -31,55 +52,12 @@ export default function Index() {
     setIsCameraOpen(false);
   };
 
-  const handleSendImage = async () => {
-    if (capturedImage) {
-      setIsLoading(true);
-      try {
-        const fileUri = capturedImage.uri;
-        const fileInfo = await FileSystem.getInfoAsync(fileUri);
-        console.log('File info:', fileInfo);
-
-        if (!fileInfo.exists) {
-          Alert.alert('Error', 'File does not exist.');
-          setIsLoading(false);
-          return;
-        }
-
-        const data = new FormData();
-        data.append('file', {
-          uri: fileUri,
-          name: `photo.jpg`,
-          type: 'image/jpeg',
-        } as any);
-
-        console.log('FormData prepared:', data);
-
-        const response = await fetch('https://3896-212-3-131-87.ngrok-free.app/upload-image/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          body: data,
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          Alert.alert('Success', 'Image uploaded successfully.');
-          console.log('Upload response:', result);
-        } else {
-          const errorText = await response.text();
-          Alert.alert('Error', `Failed to upload image: ${response.status} - ${errorText}`);
-          console.error('Upload error:', response.status, errorText);
-        }
-      } catch (error) {
-        Alert.alert('Error', 'An error occurred while uploading the image.');
-        console.error('Upload error:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      Alert.alert('Error', 'No image captured.');
-    }
+  const handleMockSendImage = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      navigation.navigate('BillDetails', { data: mockData });
+    }, 2000);
   };
 
   if (hasPermission === null) {
@@ -126,7 +104,8 @@ export default function Index() {
               ) : (
                 <CustomButton
                   title="Send Image"
-                  onPress={handleSendImage}
+                  // onPress={handleMockSendImage}
+                  onPress={() => handleSendImage(capturedImage, setIsLoading)}
                   style={styles.sendButton}
                   disabled={isLoading}
                 />
@@ -136,6 +115,7 @@ export default function Index() {
         </View>
       )}
     </View>
+
   );
 }
 

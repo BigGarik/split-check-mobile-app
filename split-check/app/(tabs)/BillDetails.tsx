@@ -1,4 +1,3 @@
-// src/app/HomeScreen/BillDetails.tsx
 import React from 'react';
 import { Text, View, StyleSheet, FlatList } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
@@ -26,10 +25,10 @@ const BillDetails: React.FC<Props> = ({ route }) => {
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.row}>
-      <Text style={styles.text}>{item.name}</Text>
-      <Text style={styles.text}>{item.quantity}</Text>
-      <Text style={styles.text}>{item.price}</Text>
-      <Text style={styles.text}>{item.sum}</Text>
+      <Text style={[styles.text, styles.nameColumn]} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
+      <Text style={[styles.text, styles.quantityColumn]}>{item.quantity}</Text>
+      <Text style={[styles.text, styles.priceColumn]}>{item.price}</Text>
+      <Text style={[styles.text, styles.sumColumn]}>{item.sum}</Text>
     </View>
   );
 
@@ -39,10 +38,10 @@ const BillDetails: React.FC<Props> = ({ route }) => {
       <Text style={styles.totalPrice}>Total Price: ${total}</Text>
       <View style={styles.tableContainer}>
         <View style={styles.head}>
-          <Text style={styles.text}>Item Name</Text>
-          <Text style={styles.text}>Quantity</Text>
-          <Text style={styles.text}>Price</Text>
-          <Text style={styles.text}>Total</Text>
+          <Text style={[styles.text, styles.nameColumn]}>Item Name</Text>
+          <Text style={[styles.text, styles.quantityColumn]}>Quantity</Text>
+          <Text style={[styles.text, styles.priceColumn]}>Price</Text>
+          <Text style={[styles.text, styles.sumColumn]}>Total</Text>
         </View>
         <FlatList
           data={data}
@@ -91,6 +90,23 @@ const styles = StyleSheet.create({
   text: {
     margin: 6,
     textAlign: 'center',
+  },
+  nameColumn: {
+    flex: 2,
+    width: 100,
+    overflow: 'hidden',
+  },
+  quantityColumn: {
+    flex: 1,
+    width: 50,
+  },
+  priceColumn: {
+    flex: 1,
+    width: 70,
+  },
+  sumColumn: {
+    flex: 1,
+    width: 70,
   },
 });
 

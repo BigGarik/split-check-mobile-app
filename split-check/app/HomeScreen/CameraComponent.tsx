@@ -23,7 +23,7 @@ export const CameraComponent: React.FC<CameraComponentProps> = ({ onClose, onCap
   if (hasPermission === null) {
     return <View />;
   }
-  if (hasPermission === false) {
+  if (!hasPermission) {
     return <Text>No access to camera</Text>;
   }
 

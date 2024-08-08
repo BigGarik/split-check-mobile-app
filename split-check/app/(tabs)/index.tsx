@@ -1,3 +1,4 @@
+// src/app/HomeScreen/Index.tsx
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar } from 'react-native';
 import * as ExpoCamera from 'expo-camera';
@@ -9,7 +10,7 @@ import { handleSendImage } from '@/app/HomeScreen/handleSendImage';
 
 type RootStackParamList = {
   Index: undefined;
-  BillDetails: { data: { select: string; itemName: string; quantity: string; price: string }[] };
+  BillDetails: { data: { position: number; name: string; quantity: number; price: number; sum: number }[]; total: number };
 };
 
 type IndexNavigationProp = StackNavigationProp<RootStackParamList, 'Index'>;
@@ -26,12 +27,12 @@ export default function Index({ navigation }: Props) {
   const [capturedImage, setCapturedImage] = useState<ExpoCamera.CameraPhoto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const mockData = Array.from({ length: 20 }, (_, index) => ({
-    select: 'Select',
-    itemName: `Item ${index + 1}`,
-    quantity: (index + 1).toString(),
-    price: `$${(index + 1) * 10}.00`,
-  }));
+  // const mockData = Array.from({ length: 20 }, (_, index) => ({
+  //   select: 'Select',
+  //   itemName: `Item ${index + 1}`,
+  //   quantity: (index + 1).toString(),
+  //   price: `$${(index + 1) * 10}.00`,
+  // }));
 
   useEffect(() => {
     const requestPermission = async () => {
@@ -52,13 +53,13 @@ export default function Index({ navigation }: Props) {
     setIsCameraOpen(false);
   };
 
-  const handleMockSendImage = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigation.navigate('BillDetails', { data: mockData });
-    }, 2000);
-  };
+  // const handleMockSendImage = () => {
+  //   setIsLoading(true);
+  //   setTimeout(() => {
+  //     setIsLoading(false);
+  //     navigation.navigate('BillDetails', { data: mockData, total: 0 });
+  //   }, 2000);
+  // };
 
   if (hasPermission === null) {
     return <View />;
@@ -104,8 +105,7 @@ export default function Index({ navigation }: Props) {
               ) : (
                 <CustomButton
                   title="Send Image"
-                  // onPress={handleMockSendImage}
-                  onPress={() => handleSendImage(capturedImage, setIsLoading)}
+                  onPress={() => handleSendImage(capturedImage, setIsLoading, navigation)}
                   style={styles.sendButton}
                   disabled={isLoading}
                 />
@@ -115,7 +115,6 @@ export default function Index({ navigation }: Props) {
         </View>
       )}
     </View>
-
   );
 }
 

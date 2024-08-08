@@ -1,31 +1,15 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { Camera } from 'expo-camera';
-import { CameraView } from 'expo-camera';
+import * as ExpoCamera from 'expo-camera';
 
 interface CameraComponentProps {
   onClose: () => void;
-  onCapture: (photo: any) => void;
+  // @ts-ignore
+  onCapture: (photo: ExpoCamera.CameraPhoto) => void;
 }
 
 export const CameraComponent: React.FC<CameraComponentProps> = ({ onClose, onCapture }) => {
-  const cameraRef = useRef<CameraView>(null);
-  const [torchEnabled, setTorchEnabled] = useState(false);
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
-
-  if (hasPermission === null) {
-    return <View />;
-  }
-  if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
-  }
+  const cameraRef = useRef<ExpoCamera.CameraView>(null);
 
   const takePicture = async () => {
     if (cameraRef.current) {
@@ -34,16 +18,11 @@ export const CameraComponent: React.FC<CameraComponentProps> = ({ onClose, onCap
     }
   };
 
-  const toggleTorch = () => {
-    setTorchEnabled((prevTorchEnabled) => !prevTorchEnabled);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <CameraView
+      <ExpoCamera.CameraView
         style={styles.camera}
         ref={cameraRef}
-        enableTorch={torchEnabled}
       >
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={onClose}>
@@ -52,13 +31,8 @@ export const CameraComponent: React.FC<CameraComponentProps> = ({ onClose, onCap
           <TouchableOpacity style={styles.button} onPress={takePicture}>
             <Text style={styles.buttonText}>Capture</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleTorch}>
-            <Text style={styles.buttonText}>
-              {torchEnabled ? 'Disable Torch' : 'Enable Torch'}
-            </Text>
-          </TouchableOpacity>
         </View>
-      </CameraView>
+      </ExpoCamera.CameraView>
     </SafeAreaView>
   );
 };

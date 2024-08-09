@@ -98,7 +98,8 @@ export default function Index({ navigation }: Props) {
               <Image
                 source={{ uri: capturedImage.uri }}
                 style={styles.preview}
-                resizeMode="contain"
+                resizeMode
+                    ="contain"
               />
               {isLoading ? (
                 <ActivityIndicator size="large" color="#28a745" />

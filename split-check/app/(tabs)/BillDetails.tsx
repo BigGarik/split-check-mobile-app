@@ -222,10 +222,12 @@ const styles = StyleSheet.create({
     padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
+    height : 350,
     shadowOffset: {
-      width: 0,
+      width: 1,
       height: 2,
     },
+    width : 250,
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,

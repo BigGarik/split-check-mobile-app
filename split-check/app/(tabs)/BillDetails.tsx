@@ -27,7 +27,7 @@ const BillDetails: React.FC<Props> = ({ route }) => {
   const handleItemPress = (item: Item) => {
     if (item.quantity > 1) {
       setSelectedItem(item);
-      setSelectedQuantity(0); // Reset selected quantity
+      setSelectedQuantity(0);
       setModalVisible(true);
     } else {
       toggleSelection(item.position);

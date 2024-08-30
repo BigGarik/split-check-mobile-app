@@ -11,6 +11,9 @@
     ],
     "android": {
       "package": "com.anonymous.splitcheckmobileapp"
-    }
+    },
+    "plugins": [
+      "react-native-document-scanner-plugin"
+    ]
   }
 }

@@ -85,7 +85,6 @@
 
 
 
-// src/app/HomeScreen/handleSendImage.ts
 import { StackNavigationProp } from '@react-navigation/stack';
 
 type RootStackParamList = {

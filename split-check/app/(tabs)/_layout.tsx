@@ -11,15 +11,12 @@ const Tabs = createBottomTabNavigator();
 
 function HomeStack() {
   console.log('Rendering HomeStack with headerShown set to false');
-
   return (
     <Stack.Navigator initialRouteName="Index" screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="Index"
         component={Index}
-        options={{ headerShown: false,
-        }}
-
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="BillDetails"

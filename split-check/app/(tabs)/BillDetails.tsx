@@ -18,6 +18,7 @@ type Item = {
 };
 
 const BillDetails: React.FC<Props> = ({ route }) => {
+  console.log('Rendering BillDetails component', route.params);
   const { data, total } = route.params;
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [modalVisible, setModalVisible] = useState(false);

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
-import * as FileSystem from 'expo-file-system';
+import React, { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar } from 'react-native';
+import { useCameraPermissions } from 'expo-camera';
 import CustomButton from '@/app/HomeScreen/CustomButton';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { handleSendImage } from '@/app/HomeScreen/handleSendImage';
+import CameraComponent from "@/app/HomeScreen/CameraComponent";
 
 type RootStackParamList = {
   Index: undefined;
@@ -25,37 +25,14 @@ export default function Index({ navigation }: Props) {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [facing, setFacing] = useState<CameraType>('back');
-  const cameraRef = useRef<CameraView | null>(null);
 
   useEffect(() => {
     requestPermission();
   }, []);
 
-  const handleCapture = async () => {
-    if (cameraRef.current) {
-      try {
-        const photo = await cameraRef.current.takePictureAsync();
-        if (photo) {
-          const fileName = `${FileSystem.documentDirectory}captured_image.jpg`;
-          await FileSystem.moveAsync({
-            from: photo.uri,
-            to: fileName
-          });
-          setCapturedImage(fileName);
-          setIsCameraOpen(false);
-        } else {
-          throw new Error('Failed to capture image');
-        }
-      } catch (error) {
-        console.error('Error capturing image:', error);
-        Alert.alert('Error', 'Failed to capture image');
-      }
-    }
-  };
-
-  const toggleCameraFacing = () => {
-    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  const handleCapture = (imageUri: string) => {
+    setCapturedImage(imageUri);
+    setIsCameraOpen(false);
   };
 
   const sendImage = async () => {
@@ -78,36 +55,14 @@ export default function Index({ navigation }: Props) {
     return <View />;
   }
 
-  // if (!permission.granted) {
-  //   return (
-  //     <View style={styles.container}>
-  //       <Text style={styles.text}>We need your permission to show the camera</Text>
-  //       <CustomButton onPress={requestPermission} title="Grant permission" />
-  //     </View>
-  //   );
-  // }
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" hidden={false} />
       {isCameraOpen ? (
-        <CameraView
-          style={styles.camera}
-          facing={facing}
-          ref={cameraRef}
-        >
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-              <Text style={styles.text}>Flip Camera</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleCapture}>
-              <Text style={styles.text}>Take Photo</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => setIsCameraOpen(false)}>
-              <Text style={styles.text}>Close Camera</Text>
-            </TouchableOpacity>
-          </View>
-        </CameraView>
+        <CameraComponent
+          onCapture={handleCapture}
+          onClose={() => setIsCameraOpen(false)}
+        />
       ) : (
         <View style={styles.content}>
           <CustomButton
@@ -136,14 +91,13 @@ export default function Index({ navigation }: Props) {
           )}
         </View>
       )}
-      {/*for te3sting*/}
+      {/* For testing */}
       <CustomButton
         title="Send Image"
-        onPress={() => handleSendImage(null , setIsLoading, navigation as any)}
+        onPress={() => handleSendImage(null, setIsLoading, navigation as any)}
         style={styles.sendButton}
         disabled={isLoading}
       />
-
     </View>
   );
 }

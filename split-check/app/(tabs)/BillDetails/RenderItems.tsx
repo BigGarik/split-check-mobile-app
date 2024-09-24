@@ -26,8 +26,9 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
     const formatter = getCurrencyFormatter(currencyCode);
 
     if (index === 2) {
+        const isSelected = currentQuantity >= 1;
         return (
-            <View style={styles.row}>
+            <View style={[styles.row, isSelected && styles.selectedRow]}>
                 <Text style={styles.nameColumn}>{item.name}</Text>
                 <View style={styles.quantityAndAmount}>
                     <View style={styles.quantityContainer}>
@@ -138,6 +139,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
 
+    },
+
+    selectedRow: {
+        backgroundColor: '#a7e0a5',
     },
 
     quantityAndAmountDefault: {

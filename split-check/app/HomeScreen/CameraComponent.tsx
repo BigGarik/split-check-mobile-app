@@ -1,103 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';  // Use CameraView instead of Camera
+import React, { useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { CameraView, CameraType } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
 
 interface CameraComponentProps {
+  onCapture: (imageUri: string) => void;
   onClose: () => void;
-  onCapture: (photo: any) => void;
 }
 
-export const CameraComponent: React.FC<CameraComponentProps> = ({ onClose, onCapture }) => {
-  const [facing, setFacing] = useState<'front' | 'back'>('back');  // CameraType as string literals
-  const [permission, requestPermission] = useCameraPermissions();  // Camera permissions hook
-  const [torchEnabled, setTorchEnabled] = useState(false);
+const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture, onClose }) => {
+  const [facing, setFacing] = useState<CameraType>('back');
+  const cameraRef = useRef<CameraView | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      if (!permission) {
-        await requestPermission();  // Request permission on mount
+  const handleCapture = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        if (photo) {
+          const fileName = `${FileSystem.documentDirectory}captured_image.jpg`;
+          await FileSystem.moveAsync({
+            from: photo.uri,
+            to: fileName
+          });
+          onCapture(fileName);
+        } else {
+          throw new Error('Failed to capture image');
+        }
+      } catch (error) {
+        console.error('Error capturing image:', error);
       }
-    })();
-  }, [permission]);
-
-  if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text>No access to camera</Text>
-        <TouchableOpacity onPress={requestPermission}>
-          <Text>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
-  const toggleTorch = () => {
-    setTorchEnabled((prevTorchEnabled) => !prevTorchEnabled);
+    }
   };
 
   const toggleCameraFacing = () => {
-    setFacing((current) => (current === 'back' ? 'front' : 'back'));
-  };
-
-  const takePicture = async () => {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <CameraView
-        style={styles.camera}
-        facing={facing}
-        enableTorch={torchEnabled}
-      >
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>Close</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={takePicture}>
-            <Text style={styles.buttonText}>Capture</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleTorch}>
-            <Text style={styles.buttonText}>
-              {torchEnabled ? 'Disable Torch' : 'Enable Torch'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-            <Text style={styles.buttonText}>Flip Camera</Text>
-          </TouchableOpacity>
-        </View>
-      </CameraView>
-    </SafeAreaView>
+    <CameraView
+      style={styles.camera}
+      facing={facing}
+      ref={cameraRef}
+    >
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+          <Text style={styles.text}>Flip Camera</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleCapture}>
+          <Text style={styles.text}>Take Photo</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={onClose}>
+          <Text style={styles.text}>Close Camera</Text>
+        </TouchableOpacity>
+      </View>
+    </CameraView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   camera: {
     flex: 1,
   },
   buttonContainer: {
-    position: 'absolute',
-    bottom: 0,
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'transparent',
+    margin: 64,
   },
   button: {
+    flex: 1,
+    alignSelf: 'flex-end',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.5)',
-    padding: 10,
-    borderRadius: 5,
   },
-  buttonText: {
+  text: {
     fontSize: 18,
-    color: 'black',
+    marginBottom: 10,
+    textAlign: 'center',
+    color: 'white',
   },
 });
+
+export default CameraComponent;

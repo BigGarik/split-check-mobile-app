@@ -1,30 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { formatCurrency } from 'react-native-format-currency';
-const { FormatMoney } = require('format-money-js');
-
-
-const currency_formater = new FormatMoney({
-    decimals: 2,
-    separator: ' ',
-    symbol: 'Р',
-    append: true
-});
-
-const currency_formater_ = new FormatMoney({
-    decimals: 2,
-    separator: ',',
-    symbol: 'som',
-    append: true
-});
-
-const currency_formater_en = new FormatMoney({
-    decimals: 2,
-    separator: ',',
-    symbol: '$',
-    append: false
-});
-
+import { getCurrencyFormatter } from './CurrencyFormatters';
 
 type Item = {
     position: number;
@@ -40,24 +16,19 @@ type RenderItemProps = {
     selectedItems: { [key: number]: number };
     handleIncrement: (item: Item) => void;
     handleDecrement: (item: Item) => void;
+    currencyCode: string;
 };
 
-export const renderItem = ({ item, index, selectedItems, handleIncrement, handleDecrement }: RenderItemProps) => {
+export const renderItem = ({ item, index, selectedItems, handleIncrement, handleDecrement, currencyCode }: RenderItemProps) => {
     const currentQuantity = selectedItems[item.position] || 0;
     const totalPrice = item.price * currentQuantity;
 
-    const [formattedTotalPrice] = formatCurrency({ amount: totalPrice, code:"RUB" });
-    const [formattedItemSum] = formatCurrency({ amount: item.sum, code:"RUB" });
-    const [formattedItemPrice] = formatCurrency({ amount: item.price, code:"RUB" });
-
-
+    const formatter = getCurrencyFormatter(currencyCode);
 
     if (index === 2) {
         return (
             <View style={styles.row}>
-
                 <Text style={styles.nameColumn}>{item.name}</Text>
-
                 <View style={styles.quantityAndAmount}>
                     <View style={styles.quantityContainer}>
                         <TouchableOpacity
@@ -78,11 +49,9 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
                             <Text style={styles.buttonText}>+</Text>
                         </TouchableOpacity>
                     </View>
-
                     <Text style={styles.priceColumn}>
-                        <Text style={styles.redFontColor}>{formattedTotalPrice}</Text> / <Text>{formattedItemSum}</Text>
+                        <Text style={styles.redFontColor}>{formatter.from(totalPrice)}</Text> / <Text>{formatter.from(item.sum)}</Text>
                     </Text>
-
                 </View>
             </View>
         );
@@ -91,7 +60,7 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
             <View style={styles.row}>
                 <Text style={styles.nameColumn}>{item.name}</Text>
                 <View style={styles.quantityAndAmount}>
-                    <Text style={styles.priceColumn}>{formattedTotalPrice}</Text>
+                    <Text style={styles.priceColumn}>{formatter.from(item.sum)}</Text>
                     <View style={styles.quantityContainer}>
                         <TouchableOpacity
                             onPress={() => handleDecrement(item)}
@@ -138,13 +107,12 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
                             <Text style={styles.buttonText}>+</Text>
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.priceColumn}>{currency_formater.from(item.sum)}</Text>
+                    <Text style={styles.priceColumn}>{formatter.from(item.sum)}</Text>
                 </View>
             </View>
         );
     }
 };
-
 
 
 const styles = StyleSheet.create({
@@ -172,7 +140,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width : '65%',
+        width : '70%',
         alignSelf : 'flex-end'
 
     },

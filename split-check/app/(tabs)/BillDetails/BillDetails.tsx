@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { renderItem } from './RenderItems';
-import { formatCurrency } from 'react-native-format-currency';
+import { getCurrencyFormatter } from './CurrencyFormatters';
 
 type RootStackParamList = {
     BillDetails: {
@@ -26,6 +26,9 @@ const BillDetails: React.FC<Props> = ({route}) => {
     const {data, total} = route.params;
     const [selectedItems, setSelectedItems] = useState<{ [key: number]: number }>({});
     const [yourSum, setYourSum] = useState<number>(0);
+    const [currencyCode, setCurrencyCode] = useState<string>('');
+
+    const formatter = getCurrencyFormatter(currencyCode);
 
     useEffect(() => {
         const sum = Object.entries(selectedItems).reduce((acc, [position, quantity]) => {
@@ -64,13 +67,11 @@ const BillDetails: React.FC<Props> = ({route}) => {
             <View style={styles.header}>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Ваша сумма </Text>
-                    <Text style={styles.sumValue}>
-                        {formatCurrency({code: "RUB", amount: yourSum})[1]}
-                    </Text>
+                    <Text style={styles.sumValue}>{formatter.from(yourSum)}</Text>
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Всего выбрано</Text>
-                    <Text style={styles.sumValue}>{formatCurrency({ amount: 99999, code: "RUB"})[1]}</Text>
+                    <Text style={styles.sumValue}>{formatter.from(99999)}</Text>
                 </View>
             </View>
 
@@ -83,6 +84,7 @@ const BillDetails: React.FC<Props> = ({route}) => {
                         selectedItems,
                         handleIncrement,
                         handleDecrement,
+                        currencyCode
                     })}
                     keyExtractor={(item) => item.position.toString()}
                     extraData={selectedItems}
@@ -92,22 +94,23 @@ const BillDetails: React.FC<Props> = ({route}) => {
             <View style={styles.footer}>
                 <View style={styles.sumContainer}>
                     <Text style={styles.footerLabel}>Полная сумма</Text>
-                    <Text style={styles.footerValue}>{formatCurrency({ amount: total })[0]}</Text>
+                    <Text style={styles.footerValue}>{formatter.from(total)}</Text>
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.footerLabel}>НДС {VAT_RATE}%</Text>
-                    <Text style={styles.footerValue}>+ {formatCurrency({ amount: calculateVAT(total) })[0]}</Text>
+                    <Text style={styles.footerValue}>+ {formatter.from(calculateVAT(total))}</Text>
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.footerTotal}>ИТОГО:</Text>
                     <Text style={styles.footerTotal}>
-                        {formatCurrency({ amount: yourSum })[0]}/{formatCurrency({ amount: totalWithVAT })[0]}
+                        {formatter.from(yourSum)}/{formatter.from(totalWithVAT)}
                     </Text>
                 </View>
             </View>
         </SafeAreaView>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

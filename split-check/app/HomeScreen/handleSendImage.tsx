@@ -106,7 +106,7 @@ export const handleSendImage = (
     uuid: "1d3e4b75-1009-49cd-a079-a98521808b07",
     response: {
       items: [
-        { position: 1, name: "Чай с лимоном,медом, ягодными листьями", quantity: 1, price: 2900, sum: 8000 },
+        { position: 1, name: "Чай с лимоном,медом, ягодными листьями, ягодными листьями, ягодными листьями, ягодными листьями, ягодными листьями", quantity: 1, price: 2900, sum: 8000 },
         { position: 2, name: "Моктейль Сено 200 мл", quantity: 1, price: 2500, sum: 2500 },
         { position: 3, name: "Печеный батат", quantity: 2, price: 3200, sum: 6400 },
         { position: 4, name: "Салат с пшеницей", quantity: 1, price: 5100, sum: 5100 },
@@ -116,7 +116,15 @@ export const handleSendImage = (
         { position: 8, name: "Комплимент бауырсаки", quantity: 1, price: 0, sum: 0 },
         { position: 9, name: "Моктейль Грецкий орех 200 мл", quantity: 1, price: 2600, sum: 2600 },
         { position: 10, name: "Айран комплимент", quantity: 3, price: 0, sum: 0 },
-        { position: 11, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 12, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 13, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 14, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 15, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 16, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 17, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 18, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 19, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
+        { position: 20, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
       ],
       total: 33000
     }

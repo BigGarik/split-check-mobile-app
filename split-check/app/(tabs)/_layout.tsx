@@ -5,31 +5,23 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import Index from './index';
 import BillDetails from '@/app/(tabs)/BillDetails';
 import Profile from '@/app/(tabs)/profile';
+import ShareScreen from '@/app/(tabs)/ShareScreen';
+import UserHistory from './UserHistory';
 
 const Stack = createStackNavigator();
 const Tabs = createBottomTabNavigator();
 
 function HomeStack() {
-  console.log('Rendering HomeStack with headerShown set to false');
   return (
     <Stack.Navigator initialRouteName="Index" screenOptions={{ headerShown: false }}>
-      <Stack.Screen
-        name="Index"
-        component={Index}
-        options={{ headerShown: false }}
-      />
-      <Stack.Screen
-        name="BillDetails"
-        component={BillDetails}
-        options={{ headerShown: false }}
-      />
+      <Stack.Screen name="Index" component={Index} options={{ headerShown: false }} />
+      <Stack.Screen name="BillDetails" component={BillDetails} options={{ headerShown: false }}/>
+      <Stack.Screen name="UserHistory" component={UserHistory} options={{ headerShown: false }}/>
     </Stack.Navigator>
   );
 }
 
 export default function RootLayout() {
-  console.log('Rendering RootLayout');
-
   return (
     <Tabs.Navigator>
       <Tabs.Screen
@@ -39,6 +31,18 @@ export default function RootLayout() {
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
           ),
+             headerShown: false
+        }}
+      />
+      <Tabs.Screen
+        name="Share"
+        component={ShareScreen}
+        options={{
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons name={focused ? 'share-social-outline' : 'share-social-outline'} size={size} color={color} />
+          ),
+             headerShown: false,
+
         }}
       />
       <Tabs.Screen
@@ -48,6 +52,7 @@ export default function RootLayout() {
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
           ),
+             headerShown: false
         }}
       />
     </Tabs.Navigator>

@@ -65,17 +65,7 @@ export default function Index({ navigation }: Props) {
     return <View />;
   }
 
-  if (hasPermission !== ExpoCamera.PermissionStatus.GRANTED) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>We need your permission to show the camera</Text>
-        <CustomButton
-          title="Grant permission"
-          onPress={() => ExpoCamera.Camera.requestCameraPermissionsAsync()}
-        />
-      </View>
-    );
-  }
+
 
   return (
     <View style={styles.container}>
@@ -115,7 +105,14 @@ export default function Index({ navigation }: Props) {
           )}
         </View>
       )}
+      <CustomButton
+                  title="Send Image"
+                  onPress={() => handleSendImage(capturedImage, setIsLoading, navigation)}
+                  style={styles.sendButton}
+                  disabled={isLoading}
+                />
     </View>
+
   );
 }
 

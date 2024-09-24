@@ -1,6 +1,30 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { formatCurrency } from 'react-native-format-currency';
+const { FormatMoney } = require('format-money-js');
+
+
+const currency_formater = new FormatMoney({
+    decimals: 2,
+    separator: ' ',
+    symbol: 'Р',
+    append: true
+});
+
+const currency_formater_ = new FormatMoney({
+    decimals: 2,
+    separator: ',',
+    symbol: 'som',
+    append: true
+});
+
+const currency_formater_en = new FormatMoney({
+    decimals: 2,
+    separator: ',',
+    symbol: '$',
+    append: false
+});
+
 
 type Item = {
     position: number;
@@ -22,16 +46,18 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
     const currentQuantity = selectedItems[item.position] || 0;
     const totalPrice = item.price * currentQuantity;
 
-    const [formattedTotalPrice] = formatCurrency({ amount: totalPrice });
-    const [formattedItemSum] = formatCurrency({ amount: item.sum });
-    const [formattedItemPrice] = formatCurrency({ amount: item.price });
+    const [formattedTotalPrice] = formatCurrency({ amount: totalPrice, code:"RUB" });
+    const [formattedItemSum] = formatCurrency({ amount: item.sum, code:"RUB" });
+    const [formattedItemPrice] = formatCurrency({ amount: item.price, code:"RUB" });
 
 
 
     if (index === 2) {
         return (
             <View style={styles.row}>
+
                 <Text style={styles.nameColumn}>{item.name}</Text>
+
                 <View style={styles.quantityAndAmount}>
                     <View style={styles.quantityContainer}>
                         <TouchableOpacity
@@ -52,9 +78,11 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
                             <Text style={styles.buttonText}>+</Text>
                         </TouchableOpacity>
                     </View>
+
                     <Text style={styles.priceColumn}>
                         <Text style={styles.redFontColor}>{formattedTotalPrice}</Text> / <Text>{formattedItemSum}</Text>
                     </Text>
+
                 </View>
             </View>
         );
@@ -110,7 +138,7 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
                             <Text style={styles.buttonText}>+</Text>
                         </TouchableOpacity>
                     </View>
-                    <Text style={styles.priceColumn}>{formattedTotalPrice}</Text>
+                    <Text style={styles.priceColumn}>{currency_formater.from(item.sum)}</Text>
                 </View>
             </View>
         );

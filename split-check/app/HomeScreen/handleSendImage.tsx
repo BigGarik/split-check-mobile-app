@@ -107,18 +107,19 @@ export const handleSendImage = (
     response: {
       items: [
         { position: 1, name: "Чай с лимоном,медом, ягодными листьями , ягодными листьями", quantity: 1, price: 2900, sum: 8000 },
-        { position: 2, name: "Моктейль Сено 200 мл", quantity: 1, price: 2500, sum: 2500 },
-        { position: 3, name: "Печеный батат", quantity: 2, price: 3200, sum: 6400 },
-        { position: 4, name: "Салат с пшеницей", quantity: 1, price: 5100, sum: 5100 },
+        { position: 2, name: "Моктейль Сено 200 мл", quantity: 1, price: 2500.00, sum: 2500000.00 },
+        { position: 3, name: "Печеный батат", quantity: 2, price: 3200.00, sum: 6400 },
+        { position: 4, name: "Салат с пшеницей", quantity: 1, price: 5100.00, sum: 5100.00 },
         { position: 5, name: "Бешбармак", quantity: 1, price: 2900, sum: 2900 },
-        { position: 6, name: "Лапша на воке с говядиной", quantity: 2, price: 4800, sum: 9600 },
+        { position: 6, name: "Лапша на воке с говядиной", quantity: 2, price: 4800, sum: 9600.00 },
         { position: 7, name: "Лепешка из тандыра, кунжут", quantity: 1, price: 900, sum: 900 },
         { position: 8, name: "Комплимент бауырсаки", quantity: 1, price: 0, sum: 0 },
         { position: 9, name: "Моктейль Грецкий орех 200 мл", quantity: 1, price: 2600, sum: 2600 },
         { position: 10, name: "Айран комплимент", quantity: 3, price: 0, sum: 0 },
         { position: 11, name: "Медовик", quantity: 1, price: 3800, sum: 3800 },
       ],
-      total: 33000
+      total: 33000,
+      vat: 12
     }
   };
 

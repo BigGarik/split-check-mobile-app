@@ -64,11 +64,13 @@ const BillDetails: React.FC<Props> = ({route}) => {
             <View style={styles.header}>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Ваша сумма </Text>
-                    <Text style={styles.sumValue}>{formatCurrency({ amount: yourSum })[0]}</Text>
+                    <Text style={styles.sumValue}>
+                        {formatCurrency({code: "RUB", amount: yourSum})[1]}
+                    </Text>
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Всего выбрано</Text>
-                    <Text style={styles.sumValue}>{formatCurrency({ amount: 99999 })[0]}</Text>
+                    <Text style={styles.sumValue}>{formatCurrency({ amount: 99999, code: "RUB"})[1]}</Text>
                 </View>
             </View>
 

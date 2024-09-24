@@ -8,8 +8,21 @@ import ProfileScreen from "@/app/(tabs)/ProfileScreen";
 import ShareScreen from '@/app/(tabs)/ShareScreen';
 import UserHistory from './UserHistory';
 
-const Stack = createStackNavigator();
-const Tabs = createBottomTabNavigator();
+export type RootStackParamList = {
+  Index: undefined;
+  BillDetails: { data: { position: number; name: string; quantity: number; price: number; sum: number }[]; total: number };
+  UserHistory: undefined;
+  Profile: undefined;
+};
+
+type TabParamList = {
+  Home: undefined;
+  Share: undefined;
+  Profile: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
+const Tabs = createBottomTabNavigator<TabParamList>();
 
 function HomeStack() {
   return (
@@ -31,7 +44,7 @@ export default function RootLayout() {
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
           ),
-             headerShown: false
+          headerShown: false
         }}
       />
       <Tabs.Screen
@@ -41,8 +54,7 @@ export default function RootLayout() {
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'share-social-outline' : 'share-social-outline'} size={size} color={color} />
           ),
-             headerShown: false,
-
+          headerShown: false,
         }}
       />
       <Tabs.Screen
@@ -52,7 +64,7 @@ export default function RootLayout() {
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
           ),
-             headerShown: false
+          headerShown: false
         }}
       />
     </Tabs.Navigator>

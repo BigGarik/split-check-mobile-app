@@ -106,8 +106,8 @@ export const handleSendImage = (
     uuid: "1d3e4b75-1009-49cd-a079-a98521808b07",
     response: {
       items: [
-        { position: 1, name: "Чай с лимоном,медом, ягодными листьями , ягодными листьями", quantity: 1, price: 2900, sum: 8000 },
-        { position: 2, name: "Моктейль Сено 200 мл", quantity: 1, price: 2500.00, sum: 2500000.00 },
+        { position: 1, name: "Чай с лимоном,медом, ягодными листьями , ягодными листьями", quantity: 1, price: 2900, sum: 2900 },
+        { position: 2, name: "Моктейль Сено 200 мл", quantity: 1, price: 2500.00, sum: 2500.00 },
         { position: 3, name: "Печеный батат", quantity: 2, price: 3200.00, sum: 6400 },
         { position: 4, name: "Салат с пшеницей", quantity: 1, price: 5100.00, sum: 5100.00 },
         { position: 5, name: "Бешбармак", quantity: 1, price: 2900, sum: 2900 },

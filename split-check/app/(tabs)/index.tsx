@@ -1,8 +1,6 @@
-// src/app/HomeScreen/Index.tsx
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar } from 'react-native';
-import * as ExpoCamera from 'expo-camera';
-import { CameraComponent } from '@/app/HomeScreen/CameraComponent';
+import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import CustomButton from '@/app/HomeScreen/CustomButton';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -22,59 +20,58 @@ type Props = {
 };
 
 export default function Index({ navigation }: Props) {
-  const [hasPermission, setHasPermission] = useState<ExpoCamera.PermissionStatus | null>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [isCameraOpen, setIsCameraOpen] = useState(false);
-  const [capturedImage, setCapturedImage] = useState<ExpoCamera.CameraPhoto | null>(null);
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  // const mockData = Array.from({ length: 20 }, (_, index) => ({
-  //   select: 'Select',
-  //   itemName: `Item ${index + 1}`,
-  //   quantity: (index + 1).toString(),
-  //   price: `$${(index + 1) * 10}.00`,
-  // }));
+  const [facing, setFacing] = useState<CameraType>('back');
 
   useEffect(() => {
-    const requestPermission = async () => {
-      try {
-        const { status } = await ExpoCamera.Camera.requestCameraPermissionsAsync();
-        setHasPermission(status);
-      } catch (error) {
-        Alert.alert('Error', 'Failed to get camera permissions.');
-        console.error('Camera permission error:', error);
-      }
-    };
-
     requestPermission();
   }, []);
 
-  const handleCapture = (photo: ExpoCamera.CameraPhoto) => {
-    setCapturedImage(photo);
-    setIsCameraOpen(false);
+  const handleCapture = async (camera: CameraView) => {
+    if (camera) {
+      const photo = await camera.takePictureAsync();
+      setCapturedImage(photo!.uri);
+      setIsCameraOpen(false);
+    }
   };
 
-  // const handleMockSendImage = () => {
-  //   setIsLoading(true);
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //     navigation.navigate('BillDetails', { data: mockData, total: 0 });
-  //   }, 2000);
-  // };
+  const toggleCameraFacing = () => {
+    setFacing(current => (current === 'back' ? 'front' : 'back'));
+  };
 
-  if (hasPermission === null) {
+  if (!permission) {
     return <View />;
   }
 
-
+  if (!permission.granted) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>We need your permission to show the camera</Text>
+        <CustomButton onPress={requestPermission} title="Grant permission" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" hidden={false} />
       {isCameraOpen ? (
-        <CameraComponent
-          onClose={() => setIsCameraOpen(false)}
-          onCapture={handleCapture}
-        />
+        <CameraView style={styles.camera} facing={facing}>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
+              <Text style={styles.text}>Flip Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => handleCapture}>
+              <Text style={styles.text}>Take Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={() => setIsCameraOpen(false)}>
+              <Text style={styles.text}>Close Camera</Text>
+            </TouchableOpacity>
+          </View>
+        </CameraView>
       ) : (
         <View style={styles.content}>
           <Text style={styles.text}>Camera is currently closed.</Text>
@@ -86,17 +83,16 @@ export default function Index({ navigation }: Props) {
             <View style={styles.previewContainer}>
               <Text style={styles.text}>Last Captured Image:</Text>
               <Image
-                source={{ uri: capturedImage.uri }}
+                source={{ uri: capturedImage }}
                 style={styles.preview}
-                resizeMode
-                    ="contain"
+                resizeMode="contain"
               />
               {isLoading ? (
                 <ActivityIndicator size="large" color="#28a745" />
               ) : (
                 <CustomButton
                   title="Send Image"
-                  onPress={() => handleSendImage(capturedImage, setIsLoading, navigation)}
+                  onPress={() => handleSendImage({ uri: capturedImage }, setIsLoading, navigation)}
                   style={styles.sendButton}
                   disabled={isLoading}
                 />
@@ -106,13 +102,20 @@ export default function Index({ navigation }: Props) {
         </View>
       )}
       <CustomButton
-                  title="Send Image"
-                  onPress={() => handleSendImage(capturedImage, setIsLoading, navigation)}
-                  style={styles.sendButton}
-                  disabled={isLoading}
-                />
-    </View>
+        title="Send Image"
+        onPress={() => capturedImage && handleSendImage({ uri: capturedImage }, setIsLoading, navigation)}
+        style={styles.sendButton}
+        disabled={isLoading || !capturedImage}
+      />
 
+      <CustomButton
+        title="Send Image"
+        onPress={() => handleSendImage({ uri : capturedImage }, setIsLoading, navigation)}
+        style={styles.sendButton}
+        disabled={isLoading}
+      />
+
+    </View>
   );
 }
 
@@ -131,6 +134,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
+    color: 'white',
   },
   previewContainer: {
     marginTop: 20,
@@ -145,5 +149,19 @@ const styles = StyleSheet.create({
   sendButton: {
     marginTop: 20,
     backgroundColor: '#28a745',
+  },
+  camera: {
+    flex: 1,
+  },
+  buttonContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: 'transparent',
+    margin: 64,
+  },
+  button: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    alignItems: 'center',
   },
 });

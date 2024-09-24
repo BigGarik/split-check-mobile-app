@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { getCurrencyFormatter } from './CurrencyFormatters';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {getCurrencyFormatter} from './CurrencyFormatters';
 
 type Item = {
     position: number;
@@ -19,7 +19,14 @@ type RenderItemProps = {
     currencyCode: string;
 };
 
-export const renderItem = ({ item, index, selectedItems, handleIncrement, handleDecrement, currencyCode }: RenderItemProps) => {
+export const renderItem = ({
+                               item,
+                               index,
+                               selectedItems,
+                               handleIncrement,
+                               handleDecrement,
+                               currencyCode
+                           }: RenderItemProps) => {
     const currentQuantity = selectedItems[item.position] || 0;
     const totalPrice = item.price * currentQuantity;
 
@@ -51,7 +58,8 @@ export const renderItem = ({ item, index, selectedItems, handleIncrement, handle
                         </TouchableOpacity>
                     </View>
                     <Text style={styles.priceColumn}>
-                        <Text style={styles.redFontColor}>{formatter.from(totalPrice)}</Text> / <Text>{formatter.from(item.sum)}</Text>
+                        <Text
+                            style={styles.redFontColor}>{formatter.from(totalPrice)}</Text> / <Text>{formatter.from(item.sum)}</Text>
                     </Text>
                 </View>
             </View>
@@ -121,9 +129,9 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         paddingVertical: 10,
         paddingHorizontal: 15,
-        backgroundColor : '#f7f7f7',
-        marginTop : 5,
-        marginBottom : 5,
+        backgroundColor: '#f7f7f7',
+        marginTop: 5,
+        marginBottom: 5,
         borderBottomColor: '#ccc',
         borderBottomWidth: 2,
 
@@ -149,8 +157,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        width : '70%',
-        alignSelf : 'flex-end'
+        width: '70%',
+        alignSelf: 'flex-end'
 
     },
     quantityContainer: {
@@ -168,9 +176,9 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
-    redFontColor : {
-        color : 'red',
-        fontWeight : 'normal'
+    redFontColor: {
+        color: 'red',
+        fontWeight: 'normal'
     },
     button: {
         backgroundColor: '#34c759',

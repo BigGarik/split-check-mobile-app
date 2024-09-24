@@ -1,4 +1,4 @@
-const { FormatMoney } = require('format-money-js');
+const {FormatMoney} = require('format-money-js');
 
 export const rubleFormatter = new FormatMoney({
     decimals: 2,

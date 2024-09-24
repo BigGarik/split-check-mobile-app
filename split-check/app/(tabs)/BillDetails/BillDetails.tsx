@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, FlatList, SafeAreaView } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { renderItem } from './RenderItems';
-import { getCurrencyFormatter } from './CurrencyFormatters';
+import React, {useState, useEffect} from 'react';
+import {Text, View, StyleSheet, FlatList, SafeAreaView} from 'react-native';
+import {RouteProp} from '@react-navigation/native';
+import {renderItem} from './RenderItems';
+import {getCurrencyFormatter} from './CurrencyFormatters';
 
 type RootStackParamList = {
     BillDetails: {
@@ -77,12 +77,12 @@ const BillDetails: React.FC<Props> = ({route}) => {
                 </View>
 
             </View>
-            <View style={styles.hr} />
+            <View style={styles.hr}/>
 
             <View style={styles.listContainer}>
                 <FlatList
                     data={data}
-                    renderItem={({ item, index }) => renderItem({
+                    renderItem={({item, index}) => renderItem({
                         item,
                         index,
                         selectedItems,
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     },
     header: {
         padding: 15,
-        paddingBottom : 0
+        paddingBottom: 0
     },
 
     hr: {
@@ -134,8 +134,8 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         flex: 1,
-        padding : 10,
-        paddingTop : 0
+        padding: 10,
+        paddingTop: 0
     },
     footer: {
         padding: 15,

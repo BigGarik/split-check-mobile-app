@@ -3,8 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Index from './index';
-import BillDetails from '@/app/(tabs)/BillDetails';
-import Profile from '@/app/(tabs)/profile';
+import BillDetails from "@/app/(tabs)/BillDetails/BillDetails";
+import ProfileScreen from "@/app/(tabs)/ProfileScreen";
 import ShareScreen from '@/app/(tabs)/ShareScreen';
 import UserHistory from './UserHistory';
 
@@ -47,7 +47,7 @@ export default function RootLayout() {
       />
       <Tabs.Screen
         name="Profile"
-        component={Profile}
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />

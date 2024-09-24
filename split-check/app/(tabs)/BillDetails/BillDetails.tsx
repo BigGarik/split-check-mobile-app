@@ -8,6 +8,7 @@ type RootStackParamList = {
     BillDetails: {
         data: { position: number; name: string; quantity: number; price: number; sum: number }[];
         total: number
+
     };
 };
 type BillDetailsRouteProp = RouteProp<RootStackParamList, 'BillDetails'>;
@@ -58,6 +59,7 @@ const BillDetails: React.FC<Props> = ({route}) => {
         });
     };
     const VAT_RATE = 12;
+    //const VAT_RATE = vat;
 
     const calculateVAT = (amount: number) => (amount * VAT_RATE) / 100;
     const totalWithVAT = total + calculateVAT(total);
@@ -73,7 +75,9 @@ const BillDetails: React.FC<Props> = ({route}) => {
                     <Text style={styles.sumLabel}>Всего выбрано</Text>
                     <Text style={styles.sumValue}>{formatter.from(99999)}</Text>
                 </View>
+
             </View>
+            <View style={styles.hr} />
 
             <View style={styles.listContainer}>
                 <FlatList
@@ -119,11 +123,19 @@ const styles = StyleSheet.create({
     },
     header: {
         padding: 15,
+        paddingBottom : 0
+    },
+
+    hr: {
+        borderBottomColor: '#ccc',
         borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
+        marginVertical: 10,
+        width: '100%',
     },
     listContainer: {
         flex: 1,
+        padding : 10,
+        paddingTop : 0
     },
     footer: {
         padding: 15,

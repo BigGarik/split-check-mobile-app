@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Text, View, StyleSheet, Image, Alert, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions, CameraCapturedPicture } from 'expo-camera';
+import * as FileSystem from 'expo-file-system';
 import CustomButton from '@/app/HomeScreen/CustomButton';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -25,16 +26,31 @@ export default function Index({ navigation }: Props) {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [facing, setFacing] = useState<CameraType>('back');
+  const cameraRef = useRef<CameraView | null>(null);
 
   useEffect(() => {
     requestPermission();
   }, []);
 
-  const handleCapture = async (camera: CameraView) => {
-    if (camera) {
-      const photo = await camera.takePictureAsync();
-      setCapturedImage(photo!.uri);
-      setIsCameraOpen(false);
+  const handleCapture = async () => {
+    if (cameraRef.current) {
+      try {
+        const photo = await cameraRef.current.takePictureAsync();
+        if (photo) {
+          const fileName = `${FileSystem.documentDirectory}captured_image.jpg`;
+          await FileSystem.moveAsync({
+            from: photo.uri,
+            to: fileName
+          });
+          setCapturedImage(fileName);
+          setIsCameraOpen(false);
+        } else {
+          throw new Error('Failed to capture image');
+        }
+      } catch (error) {
+        console.error('Error capturing image:', error);
+        Alert.alert('Error', 'Failed to capture image');
+      }
     }
   };
 
@@ -42,29 +58,49 @@ export default function Index({ navigation }: Props) {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   };
 
+  const sendImage = async () => {
+    if (capturedImage) {
+      try {
+        setIsLoading(true);
+        handleSendImage({ uri: capturedImage }, setIsLoading, navigation as any);
+      } catch (error) {
+        console.error('Error sending image:', error);
+        Alert.alert('Error', 'Failed to send image');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      Alert.alert('Error', 'No image captured');
+    }
+  };
+
   if (!permission) {
     return <View />;
   }
 
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.text}>We need your permission to show the camera</Text>
-        <CustomButton onPress={requestPermission} title="Grant permission" />
-      </View>
-    );
-  }
+  // if (!permission.granted) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text style={styles.text}>We need your permission to show the camera</Text>
+  //       <CustomButton onPress={requestPermission} title="Grant permission" />
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" hidden={false} />
       {isCameraOpen ? (
-        <CameraView style={styles.camera} facing={facing}>
+        <CameraView
+          style={styles.camera}
+          facing={facing}
+          ref={cameraRef}
+        >
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
               <Text style={styles.text}>Flip Camera</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={() => handleCapture}>
+            <TouchableOpacity style={styles.button} onPress={handleCapture}>
               <Text style={styles.text}>Take Photo</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button} onPress={() => setIsCameraOpen(false)}>
@@ -74,7 +110,6 @@ export default function Index({ navigation }: Props) {
         </CameraView>
       ) : (
         <View style={styles.content}>
-          <Text style={styles.text}>Camera is currently closed.</Text>
           <CustomButton
             title="Open Camera"
             onPress={() => setIsCameraOpen(true)}
@@ -92,7 +127,7 @@ export default function Index({ navigation }: Props) {
               ) : (
                 <CustomButton
                   title="Send Image"
-                  onPress={() => handleSendImage({ uri: capturedImage }, setIsLoading, navigation)}
+                  onPress={sendImage}
                   style={styles.sendButton}
                   disabled={isLoading}
                 />
@@ -101,16 +136,10 @@ export default function Index({ navigation }: Props) {
           )}
         </View>
       )}
+      {/*for te3sting*/}
       <CustomButton
         title="Send Image"
-        onPress={() => capturedImage && handleSendImage({ uri: capturedImage }, setIsLoading, navigation)}
-        style={styles.sendButton}
-        disabled={isLoading || !capturedImage}
-      />
-
-      <CustomButton
-        title="Send Image"
-        onPress={() => handleSendImage({ uri : capturedImage }, setIsLoading, navigation)}
+        onPress={() => handleSendImage(null , setIsLoading, navigation as any)}
         style={styles.sendButton}
         disabled={isLoading}
       />
@@ -119,9 +148,10 @@ export default function Index({ navigation }: Props) {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    // marginTop: 50,
     flex: 1,
   },
   content: {
@@ -134,7 +164,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     textAlign: 'center',
-    color: 'white',
+    color: 'black',
   },
   previewContainer: {
     marginTop: 20,

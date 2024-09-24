@@ -44,16 +44,14 @@ export const CameraComponent: React.FC<CameraComponentProps> = ({ onClose, onCap
   };
 
   const takePicture = async () => {
-    // Implementation to take picture here with external method (depending on the library capabilities)
-    // You will need to manage this with any further API as CameraView does not have takePictureAsync directly
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <CameraView
         style={styles.camera}
-        facing={facing}  // Manage front or back camera
-        enableTorch={torchEnabled}  // Toggle torch/flash
+        facing={facing}
+        enableTorch={torchEnabled}
       >
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={onClose}>

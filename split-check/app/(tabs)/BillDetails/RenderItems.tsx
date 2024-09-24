@@ -120,8 +120,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         paddingVertical: 10,
         paddingHorizontal: 15,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
+        backgroundColor : '#f7f7f7',
+        marginTop : 5,
+        marginBottom : 5,
+        borderBottomColor: '#ccc',
+        borderBottomWidth: 2,
+
     },
     nameColumn: {
         fontSize: 16,

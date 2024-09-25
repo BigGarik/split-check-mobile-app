@@ -9,7 +9,26 @@ import CameraComponent from "@/app/HomeScreen/CameraComponent";
 
 type RootStackParamList = {
   Index: undefined;
-  BillDetails: { data: { position: number; name: string; quantity: number; price: number; sum: number }[]; total: number };
+  BillDetails: {
+        data: { position: number; name: string; quantity: number; price: number; sum: number }[];
+        total: number;
+        restaurantInfo: {
+            name: string;
+            tableNumber: string;
+            orderNumber: string;
+            date: string;
+            time: string;
+            waiter: string;
+        };
+        serviceCharge: {
+            name: string;
+            amount: number;
+        };
+        vat: {
+            rate: number;
+            amount: number;
+        };
+    };
 };
 
 type IndexNavigationProp = StackNavigationProp<RootStackParamList, 'Index'>;

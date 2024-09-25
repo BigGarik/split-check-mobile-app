@@ -1,17 +1,61 @@
 // import { Alert } from 'react-native';
 // import * as FileSystem from 'expo-file-system';
-// import { StackNavigationProp } from '@react-navigation/stack';
+// import { NavigationProp } from '@react-navigation/native';
 //
-// type RootStackParamList = {
-//   BillDetails: { data: { position: number; name: string; quantity: number; price: number; sum: number }[]; total: number };
+// type RecognizedItem = {
+//   id?: number;
+//   name?: string;
+//   quantity?: number;
+//   price?: number;
 // };
 //
-// type IndexNavigationProp = StackNavigationProp<RootStackParamList, 'BillDetails'>;
+// type RecognizedJson = {
+//   restaurant?: string;
+//   table_number?: string;
+//   order_number?: string;
+//   date?: string;
+//   time?: string;
+//   waiter?: string;
+//   items?: RecognizedItem[];
+//   subtotal?: number;
+//   service_charge?: {
+//     name: string;
+//     amount: number;
+//   };
+//   vat?: {
+//     rate: number;
+//     amount: number;
+//   };
+//   total?: number;
+// };
+//
+// type RootStackParamList = {
+//   BillDetails: {
+//     data: { position: number; name: string; quantity: number; price: number; sum: number }[];
+//     total: number;
+//     restaurantInfo: {
+//       name: string;
+//       tableNumber: string;
+//       orderNumber: string;
+//       date: string;
+//       time: string;
+//       waiter: string;
+//     };
+//     serviceCharge: {
+//       name: string;
+//       amount: number;
+//     };
+//     vat: {
+//       rate: number;
+//       amount: number;
+//     };
+//   };
+// };
 //
 // export const handleSendImage = async (
 //   capturedImage: { uri: string } | null,
 //   setIsLoading: (loading: boolean) => void,
-//   navigation: IndexNavigationProp
+//   navigation: NavigationProp<RootStackParamList, 'BillDetails'>
 // ) => {
 //   if (!capturedImage) {
 //     Alert.alert('Error', 'No image captured.');
@@ -21,61 +65,85 @@
 //   setIsLoading(true);
 //
 //   try {
-//     const fileUri = capturedImage.uri;
-//     const fileInfo = await FileSystem.getInfoAsync(fileUri);
-//     console.log('File info:', JSON.stringify(fileInfo, null, 2));
-//
+//     // Step 1: Validate the image file
+//     const fileInfo = await FileSystem.getInfoAsync(capturedImage.uri);
 //     if (!fileInfo.exists) {
-//       throw new Error('File does not exist.');
+//       throw new Error('Image file does not exist.');
 //     }
 //
-//     const data = new FormData();
-//     data.append('file', {
-//       uri: fileUri,
+//     // Step 2: Prepare the form data
+//     const formData = new FormData();
+//     formData.append('file', {
+//       uri: capturedImage.uri,
 //       name: 'photo.jpg',
 //       type: 'image/jpeg',
 //     } as any);
 //
-//     console.log('FormData prepared');
-//
+//     // Step 3: Send the request
 //     const response = await fetch('https://biggarik.ru/split_check/upload-image/', {
 //       method: 'POST',
 //       headers: {
 //         'Content-Type': 'multipart/form-data',
 //       },
-//       body: data,
+//       body: formData,
 //     });
-//
-//     console.log('Response status:', response.status);
 //
 //     if (!response.ok) {
 //       throw new Error(`HTTP error! status: ${response.status}`);
 //     }
 //
-//     let responseData;
-//     const responseText = await response.json();
-//     console.log('Raw response:', responseText);
+//     // Step 4: Parse the response
+//     const responseData = await response.json();
+//     console.log('Server response:', JSON.stringify(responseData, null, 2));
 //
-//     try {
-//       responseData = JSON.parse(responseText);
-//     } catch (parseError) {
-//       console.error('Error parsing JSON:', parseError);
-//       throw new Error('Failed to parse server response');
+//     if (!responseData.recognized_json) {
+//       throw new Error('Unexpected response format: missing recognized_json');
 //     }
 //
-//     console.log('Parsed response:', JSON.stringify(responseData, null, 2));
+//     const recognizedJson: RecognizedJson = responseData.recognized_json;
 //
-//     if (!responseData.response || !Array.isArray(responseData.response.items) || typeof responseData.response.total !== 'number') {
-//       throw new Error('Unexpected response format');
+//     // Step 5: Validate and format the data
+//     if (!Array.isArray(recognizedJson.items)) {
+//       throw new Error('Unexpected response format: items is not an array');
 //     }
 //
-//     const { items, total } = responseData.response;
-//     console.log('Navigating to BillDetails with data:', { data: items, total });
-//     navigation.navigate('BillDetails', { data: items, total });
+//     const formattedData = recognizedJson.items.map((item, index) => ({
+//       position: item.id ?? index + 1,
+//       name: item.name ?? 'Unknown Item',
+//       quantity: item.quantity ?? 0,
+//       price: item.price ?? 0,
+//       sum: (item.quantity ?? 0) * (item.price ?? 0)
+//     }));
+//
+//     const billDetails = {
+//       data: formattedData,
+//       total: recognizedJson.total ?? 0,
+//       restaurantInfo: {
+//         name: recognizedJson.restaurant ?? 'Unknown Restaurant',
+//         tableNumber: recognizedJson.table_number ?? 'N/A',
+//         orderNumber: recognizedJson.order_number ?? 'N/A',
+//         date: recognizedJson.date ?? 'N/A',
+//         time: recognizedJson.time ?? 'N/A',
+//         waiter: recognizedJson.waiter ?? 'N/A'
+//       },
+//       serviceCharge: recognizedJson.service_charge ?? { name: 'Service Charge', amount: 0 },
+//       vat: recognizedJson.vat ?? { rate: 0, amount: 0 }
+//     };
+//
+//     console.log('Formatted bill details:', JSON.stringify(billDetails, null, 2));
+//
+//     // Step 6: Navigate to the BillDetails screen
+//     navigation.navigate('BillDetails', billDetails);
 //
 //   } catch (error) {
 //     console.error('Error in handleSendImage:', error);
-//     Alert.alert('Error', error instanceof Error ? error.message : 'An unknown error occurred');
+//     let errorMessage = 'An unknown error occurred';
+//     if (error instanceof Error) {
+//       console.error('Error message:', error.message);
+//       console.error('Error stack:', error.stack);
+//       errorMessage = error.message;
+//     }
+//     Alert.alert('Error', errorMessage);
 //   } finally {
 //     setIsLoading(false);
 //   }
@@ -87,7 +155,23 @@ import {StackNavigationProp} from '@react-navigation/stack';
 type RootStackParamList = {
     BillDetails: {
         data: { position: number; name: string; quantity: number; price: number; sum: number }[];
-        total: number
+        total: number;
+        restaurantInfo: {
+            name: string;
+            tableNumber: string;
+            orderNumber: string;
+            date: string;
+            time: string;
+            waiter: string;
+        };
+        serviceCharge: {
+            name: string;
+            amount: number;
+        };
+        vat: {
+            rate: number;
+            amount: number;
+        };
     };
 };
 
@@ -100,40 +184,191 @@ export const handleSendImage = (
 ) => {
     setIsLoading(true);
 
-    // Dummy data to simulate API response
-    const dummyResponse = {
-        message: "Successfully uploaded photo.jpg",
-        uuid: "1d3e4b75-1009-49cd-a079-a98521808b07",
-        response: {
-            items: [
+    const mockResponse = {
+        "message": "Successfully uploaded image.jpg",
+        "uuid": "9d0dd3fc-86e1-401a-bf0e-9f2d511b2442",
+        "recognized_json": {
+            "restaurant": "Веранда",
+            "table_number": "110",
+            "order_number": "57",
+            "date": "17.08.2024",
+            "time": "17:28",
+            "waiter": "Нурсултан А.",
+            "items": [
                 {
-                    position: 1,
-                    name: "Чай с лимоном,медом, ягодными листьями , ягодными листьями",
-                    quantity: 1,
-                    price: 2900,
-                    sum: 2900
+                    "id": 1,
+                    "name": "Мохито 300 мл б/а",
+                    "quantity": 1,
+                    "price": 65000
                 },
-                {position: 2, name: "Моктейль Сено 200 мл", quantity: 1, price: 2500.00, sum: 2500.00},
-                {position: 3, name: "Печеный батат", quantity: 2, price: 3200.00, sum: 6400},
-                {position: 4, name: "Салат с пшеницей", quantity: 1, price: 5100.00, sum: 5100.00},
-                {position: 5, name: "Бешбармак", quantity: 1, price: 2900, sum: 2900},
-                {position: 6, name: "Лапша на воке с говядиной", quantity: 2, price: 4800, sum: 9600.00},
-                {position: 7, name: "Лепешка из тандыра, кунжут", quantity: 1, price: 900, sum: 900},
-                {position: 8, name: "Комплимент бауырсаки", quantity: 1, price: 0, sum: 0},
-                {position: 9, name: "Моктейль Грецкий орех 200 мл", quantity: 1, price: 2600, sum: 2600},
-                {position: 10, name: "Айран комплимент", quantity: 3, price: 0, sum: 0},
-                {position: 11, name: "Медовик", quantity: 1, price: 3800, sum: 3800},
+                {
+                    "id": 2,
+                    "name": "Вода Chortog 750мл без газа холодный",
+                    "quantity": 1,
+                    "price": 38000
+                },
+                {
+                    "id": 3,
+                    "name": "Paulaner",
+                    "quantity": 2,
+                    "price": 330000
+                },
+                {
+                    "id": 4,
+                    "name": "пиво Eggenberg Freibie г 330 мл",
+                    "quantity": 2,
+                    "price": 190000
+                },
+                {
+                    "id": 5,
+                    "name": "Ризотто с трюфелем",
+                    "quantity": 1,
+                    "price": 186000
+                },
+                {
+                    "id": 6,
+                    "name": "Наггетсы из индейки 5 шт",
+                    "quantity": 2,
+                    "price": 144000
+                },
+                {
+                    "id": 7,
+                    "name": "Картофель фри",
+                    "quantity": 1,
+                    "price": 45000
+                },
+                {
+                    "id": 8,
+                    "name": "Суши лосось",
+                    "quantity": 6,
+                    "price": 270000
+                },
+                {
+                    "id": 9,
+                    "name": "Кейк-попс с декором",
+                    "quantity": 2,
+                    "price": 70000
+                },
+                {
+                    "id": 10,
+                    "name": "Пицца с грушей с горго нзолой",
+                    "quantity": 1,
+                    "price": 155000
+                },
+                {
+                    "id": 11,
+                    "name": "Чай Ассам",
+                    "quantity": 1,
+                    "price": 45000
+                },
+                {
+                    "id": 12,
+                    "name": "Лимон добавка",
+                    "quantity": 1,
+                    "price": 12000
+                },
+                {
+                    "id": 13,
+                    "name": "Куриная котлета с гарн иром картофельное пюре",
+                    "quantity": 1,
+                    "price": 84000
+                },
+                {
+                    "id": 14,
+                    "name": "Макаронс малина",
+                    "quantity": 2,
+                    "price": 50000
+                },
+                {
+                    "id": 15,
+                    "name": "Макаронс шоколад",
+                    "quantity": 3,
+                    "price": 75000
+                },
+                {
+                    "id": 16,
+                    "name": "Вода Chortog 750мл без газа холодный",
+                    "quantity": 1,
+                    "price": 38000
+                },
+                {
+                    "id": 17,
+                    "name": "кетчуп добавка",
+                    "quantity": 1,
+                    "price": 20000
+                }
             ],
-            total: 33000,
-            vat: 12
+            "subtotal": 1817000,
+            "service_charge": {
+                "name": "Сервисный сбор 12%",
+                "amount": 218040
+            },
+            "vat": {
+                "rate": 0,
+                "amount": 0
+            },
+            "total": 2035040
         }
     };
 
     // Simulating network delay
     setTimeout(() => {
         setIsLoading(false);
-        const {items, total} = dummyResponse.response;
-        console.log('Navigating to BillDetails with data:', {data: items, total});
-        navigation.navigate('BillDetails', {data: items, total});
+        try {
+            const {
+                items,
+                total,
+                restaurant,
+                table_number,
+                order_number,
+                date,
+                time,
+                waiter,
+                service_charge,
+                vat
+            } = mockResponse.recognized_json;
+
+            console.log('Extracted values:', {
+                items, total, restaurant, table_number, order_number,
+                date, time, waiter, service_charge, vat
+            });
+
+            const undefinedValues = Object.entries({
+                items, total, restaurant, table_number, order_number,
+                date, time, waiter, service_charge, vat
+            }).filter(([key, value]) => value === undefined);
+
+            if (undefinedValues.length > 0) {
+                console.warn('Warning: Some values are undefined:', undefinedValues);
+            }
+
+            const formattedData = items.map((item, index) => ({
+                position: item.id,
+                name: item.name,
+                quantity: item.quantity,
+                price: item.price,
+                sum: item.quantity * item.price
+            }));
+
+            const billDetails = {
+                data: formattedData,
+                total: total,
+                restaurantInfo: {
+                    name: restaurant || '',
+                    tableNumber: table_number || '',
+                    orderNumber: order_number || '',
+                    date: date || '',
+                    time: time || '',
+                    waiter: waiter || ''
+                },
+                serviceCharge: service_charge || {name: '', amount: 0},
+                vat: vat || {rate: 0, amount: 0}
+            };
+
+            console.log('Navigating to BillDetails with data:', JSON.stringify(billDetails, null, 2));
+            navigation.navigate('BillDetails', billDetails);
+        } catch (error) {
+            console.error('Error in handleSendImage:', error);
+        }
     }, 1000);
 };

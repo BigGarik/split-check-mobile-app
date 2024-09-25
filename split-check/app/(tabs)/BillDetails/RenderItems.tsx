@@ -65,8 +65,9 @@ export const renderItem = ({
             </View>
         );
     } else if (index === 3) {
+        const isSelected = currentQuantity >= 1;
         return (
-            <View style={styles.row}>
+            <View style={[styles.row, isSelected && styles.selectedRow]}>
                 <Text style={styles.nameColumn}>{item.name}</Text>
                 <View style={styles.quantityAndAmount}>
                     <Text style={styles.priceColumn}>{formatter.from(item.sum)}</Text>
@@ -93,8 +94,10 @@ export const renderItem = ({
             </View>
         );
     } else {
+        const isSelected = currentQuantity >= 1;
         return (
-            <View style={styles.row}>
+
+            <View style={[styles.row, isSelected && styles.selectedRow]}>
                 <Text style={styles.nameColumn}>{item.name}</Text>
                 <View style={styles.quantityAndAmountDefault}>
                     <View style={styles.quantityContainer}>

@@ -73,16 +73,6 @@ export default function RootLayout() {
                     }}
                 />
                 <Tabs.Screen
-                    name="Camera"
-                    component={HomeStack}
-                    options={{
-                        tabBarIcon: ({ focused, color, size }) => (
-                            <Ionicons name={focused ? 'camera' : 'camera-outline'} size={size} color={color} />
-                        ),
-                        headerShown: false
-                    }}
-                />
-                <Tabs.Screen
                     name="Share"
                     component={ShareScreen}
                     options={{
@@ -90,6 +80,16 @@ export default function RootLayout() {
                             <Ionicons name={focused ? 'share-social-outline' : 'share-social-outline'} size={size} color={color} />
                         ),
                         headerShown: false,
+                    }}
+                />
+                <Tabs.Screen
+                    name="Camera"
+                    component={HomeStack}
+                    options={{
+                        tabBarIcon: ({ focused, color, size }) => (
+                            <Ionicons name={focused ? 'camera' : 'camera-outline'} size={size} color={color} />
+                        ),
+                        headerShown: false
                     }}
                 />
                 <Tabs.Screen

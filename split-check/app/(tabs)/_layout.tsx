@@ -4,9 +4,9 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Index from './index';
 import BillDetails from "@/app/(tabs)/BillDetails/BillDetails";
-import ProfileScreen from "@/app/(tabs)/ProfileScreen";
+import ProfileScreen from "@/app/(tabs)/Profile/ProfileScreen";
 import ShareScreen from '@/app/(tabs)/ShareScreen';
-import UserHistory from './UserHistory';
+import UserHistory from './Profile/UserHistory';
 import {NavigationContainer} from "@react-navigation/native";
 import {AuthProvider} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 

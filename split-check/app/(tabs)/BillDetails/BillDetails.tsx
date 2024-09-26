@@ -1,13 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import {Text, View, StyleSheet, FlatList, SafeAreaView} from 'react-native';
+import {Text, View, StyleSheet, FlatList, SafeAreaView, TouchableOpacity} from 'react-native';
 import {RouteProp} from '@react-navigation/native';
 import {renderItem} from './RenderItems';
 import {getCurrencyFormatter} from './CurrencyFormatters';
 import {StackNavigationProp} from "@react-navigation/stack";
 import {RootStackParamList} from "@/app/(tabs)/_layout";
 
+
 type BillDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'BillDetails'>;
 type BillDetailsRouteProp = RouteProp<RootStackParamList, 'BillDetails'>;
+
 type Props = {
     navigation: BillDetailsNavigationProp;
     route: BillDetailsRouteProp;
@@ -71,8 +73,14 @@ const BillDetails: React.FC<Props> = ({route, navigation}) => {
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Всего выбрано</Text>
-                    <Text style={styles.sumValue}>{formatter.from(99999)}</Text>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('GroupBillDetails')}
+                    >
+                    <Text style={styles.sumValue}>{formatter.from(yourSum)}</Text>
+                </TouchableOpacity>
+
                 </View>
+
 
             </View>
             <View style={styles.hr}/>

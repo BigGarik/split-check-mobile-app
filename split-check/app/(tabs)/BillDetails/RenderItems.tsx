@@ -19,14 +19,7 @@ type RenderItemProps = {
     currencyCode: string;
 };
 
-export const renderItem = ({
-                               item,
-                               index,
-                               selectedItems,
-                               handleIncrement,
-                               handleDecrement,
-                               currencyCode
-                           }: RenderItemProps) => {
+export const renderItem = ({item,index,selectedItems,handleIncrement,handleDecrement,currencyCode}: RenderItemProps) => {
     const currentQuantity = selectedItems[item.position] || 0;
     const totalPrice = item.price * currentQuantity;
 
@@ -172,7 +165,7 @@ const styles = StyleSheet.create({
     quantityText: {
         fontSize: 14,
         paddingHorizontal: 10,
-        minWidth: 60,
+        minWidth: 45,
         textAlign: 'center',
     },
     priceColumn: {
@@ -185,9 +178,9 @@ const styles = StyleSheet.create({
     },
     button: {
         backgroundColor: '#34c759',
-        borderRadius: 15,
-        width: 30,
-        height: 30,
+        borderRadius: 50,
+        width: 35,
+        height: 35,
         alignItems: 'center',
         justifyContent: 'center',
     },

@@ -4,9 +4,9 @@ import {useCameraPermissions} from 'expo-camera';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {handleSendImage} from '@/app/HomeScreen/handleSendImage';
 import CameraComponent from "@/app/HomeScreen/CameraComponent";
-import {useAuth} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
+//import {useAuth} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 import {RootStackParamList} from "@/app/(tabs)/_layout";
-import {Ionicons} from '@expo/vector-icons';
+//import {Ionicons} from '@expo/vector-icons';
 
 type CameraScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CameraScreen'>;
 
@@ -15,7 +15,7 @@ type Props = {
 };
 
 export default function CameraScreen({navigation}: Props) {
-    const {token} = useAuth();
+    //const {token} = useAuth();
     const [permission, requestPermission] = useCameraPermissions();
     const [isCameraOpen, setIsCameraOpen] = useState(true);  // Set to true initially
     const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function CameraScreen({navigation}: Props) {
         if (capturedImage && !isLoading) {
             try {
                 setIsLoading(true);
-                await handleSendImage({uri: capturedImage}, setIsLoading, navigation as any);
+                handleSendImage({uri: capturedImage}, setIsLoading, navigation as any);
             } catch (error) {
                 console.error('Error sending image:', error);
                 Alert.alert('Error', 'Failed to send image');
@@ -68,7 +68,7 @@ export default function CameraScreen({navigation}: Props) {
             {isCameraOpen ? (
                 <CameraComponent
                     onCapture={handleCapture}
-                    onClose={() => navigation.goBack()}
+                    //onClose={() => navigation.goBack()}
                 />
             ) : (
                 <>

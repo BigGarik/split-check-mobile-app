@@ -1,16 +1,17 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useNavigation, NavigationState } from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {useNavigation} from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Index from './index';
 import CameraScreen from "@/app/(tabs)/Camera/CameraScreen";
 import BillDetails from "@/app/(tabs)/BillDetails/BillDetails";
 import ProfileScreen from "@/app/(tabs)/Profile/ProfileScreen";
 import UserHistory from './Profile/UserHistory';
-import { AuthProvider } from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
+import {AuthProvider} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 import * as Sharing from 'expo-sharing';
 import {useFocusEffect} from "expo-router";
+import GroupBillDetails from "@/app/(tabs)/BillDetails/GroupBillDetails";
 
 export type RootStackParamList = {
     Index: undefined;
@@ -37,14 +38,15 @@ export type RootStackParamList = {
     };
     UserHistory: undefined;
     Profile: undefined;
+    GroupBillDetails : undefined;
 };
 
-type TabParamList = {
-    Home: undefined;
-    Camera: undefined;
-    Share: undefined;
-    Profile: undefined;
-};
+// type TabParamList = {
+//     Home: undefined;
+//     Camera: undefined;
+//     Share: undefined;
+//     Profile: undefined;
+// };
 
 const Stack = createStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator();
@@ -56,6 +58,7 @@ function HomeStack() {
             <Stack.Screen name="CameraScreen" component={CameraScreen} options={{ headerShown: false }} />
             <Stack.Screen name="BillDetails" component={BillDetails} options={{ headerShown: false }} />
             <Stack.Screen name="UserHistory" component={UserHistory} options={{ headerShown: false }} />
+            <Stack.Screen name="GroupBillDetails" component={GroupBillDetails} options={{ headerShown: false }} />
         </Stack.Navigator>
     );
 }
@@ -93,11 +96,10 @@ function TabNavigator() {
 
     useEffect(() => {
         console.log('Setting up navigation listener');
-        const unsubscribe = navigation.addListener('state', () => {
+        return navigation.addListener('state', () => {
             console.log('Navigation state changed');
             checkIfBillDetailsIsVisible();
         });
-        return unsubscribe;
     }, [navigation, checkIfBillDetailsIsVisible]);
 
     useFocusEffect(
@@ -154,7 +156,7 @@ function TabNavigator() {
 
     const handleShare = async () => {
         try {
-            await Sharing.shareAsync('https://expo.dev');
+            await Sharing.shareAsync('https://split_check/group_url');
             console.log('Shared successfully');
         } catch (error) {
             console.error('Error sharing:', error);
@@ -190,7 +192,7 @@ function TabNavigator() {
                     name="Home"
                     component={HomeStack}
                     options={{
-                        tabBarIcon: ({ focused, color, size  }) => (
+                        tabBarIcon: ({ focused, color  }) => (
                             <Ionicons name={focused ? 'home' : 'home-outline'} size={30} color={color} />
                         ),
                         //tabBarLabel: '',
@@ -201,7 +203,7 @@ function TabNavigator() {
                     name="Back"
                     component={HomeStack}
                     options={{
-                        tabBarIcon: ({ color, size }) => (
+                        tabBarIcon: ({ color }) => (
                             <Ionicons name="arrow-back" size={30} color={color} />
                         ),
                         //tabBarLabel: '',
@@ -219,11 +221,11 @@ function TabNavigator() {
                         name="Share"
                         component={HomeStack}
                         options={{
-                            tabBarIcon: ({ color, size }) => (
-                                <Ionicons name="share-outline" size={30} color={color} />
+                            tabBarIcon: ({ color }) => (
+                                <Ionicons name="share-social-outline" size={30} color={color} />
                             ),
-                            //headerShown: false,
-                            tabBarLabel: '',
+                            headerShown: false,
+                            //tabBarLabel: '',
                         }}
                         listeners={{
                             tabPress: (e) => {
@@ -238,7 +240,7 @@ function TabNavigator() {
                         name="Camera"
                         component={CameraScreen}
                         options={{
-                            tabBarIcon: ({ focused, color, size }) => (
+                            tabBarIcon: ({ focused, color }) => (
                                 <Ionicons name={focused ? 'camera' : 'camera-outline'} size={30} color={color} />
                             ),
                             headerShown: false,
@@ -250,7 +252,7 @@ function TabNavigator() {
                     name="Profile"
                     component={ProfileScreen}
                     options={{
-                        tabBarIcon: ({ focused, color, size }) => (
+                        tabBarIcon: ({ focused, color }) => (
                             <Ionicons name={focused ? 'person' : 'person-outline'} size={30} color={color} />
                         ),
                         headerShown: false,

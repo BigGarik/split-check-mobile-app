@@ -1,16 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import { CameraView, CameraType } from 'expo-camera';
+import { CameraView, CameraType, FocusMode  } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
 import { Ionicons } from '@expo/vector-icons';
 
 interface CameraComponentProps {
     onCapture: (imageUri: string) => void;
-    onClose: () => void;
+    //onClose: () => void;
 }
 
-const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture, onClose }) => {
-    const [facing, setFacing] = useState<CameraType>('back');
+const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture /*, onClose*/ }) => {
+    const [facing/*, setFacing*/] = useState<CameraType>('back');
     const [isTorchOn, setIsTorchOn] = useState(false);
     const cameraRef = useRef<CameraView | null>(null);
 
@@ -41,6 +41,9 @@ const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture, onClose })
     const toggleTorch = () => {
         setIsTorchOn(current => !current);
     };
+
+
+
 
     return (
         <CameraView

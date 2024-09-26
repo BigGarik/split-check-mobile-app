@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, StyleSheet, TextInput, Alert, Platform } from 'react-native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useNavigation } from '@react-navigation/native';
-import { RootStackParamList } from "@/app/(tabs)/_layout";
-import { useAuth } from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
+import React, {useState, useEffect} from 'react';
+import {View, Text, Button, StyleSheet, TextInput, Alert /*, Platform*/} from 'react-native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useNavigation} from '@react-navigation/native';
+import {RootStackParamList} from "@/app/(tabs)/_layout";
+import {useAuth} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -11,7 +11,7 @@ export default function ProfileScreen() {
     const navigation = useNavigation<ProfileScreenNavigationProp>();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const { token, login } = useAuth();
+    const {token, login} = useAuth();
     const [loginError, setLoginError] = useState('');
 
     useEffect(() => {
@@ -80,6 +80,10 @@ export default function ProfileScreen() {
         }
     };
 
+    const handRegister = () => {
+        console.log('register clicked')
+    }
+
     const handleLogout = () => {
         // logout();
         Alert.alert('Success', 'You have been logged out');
@@ -94,8 +98,8 @@ export default function ProfileScreen() {
                     <Text style={styles.tokenTitle}>Current Token:</Text>
                     <Text style={styles.tokenText}>{token}</Text>
                 </View>
-                <Button title="View My History" onPress={() => navigation.navigate('UserHistory')} />
-                <Button title="Logout" onPress={handleLogout} />
+                <Button title="View My History" onPress={() => navigation.navigate('UserHistory')}/>
+                <Button title="Logout" onPress={handleLogout}/>
             </View>
         );
     }
@@ -119,7 +123,10 @@ export default function ProfileScreen() {
                     onChangeText={setPassword}
                     secureTextEntry
                 />
-                <Button title="Login" onPress={handleLogin} />
+                <View style={styles.loginAndRegisterCont}>
+                    <Button title="Login" onPress={handleLogin}/>
+                    <Button title="Resiter" onPress={handRegister}/>
+                </View>
                 {loginError ? (
                     <View style={styles.errorContainer}>
                         <Text style={styles.errorText}>{loginError}</Text>
@@ -131,6 +138,12 @@ export default function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+    loginAndRegisterCont : {
+      display : 'flex',
+      justifyContent : 'space-evenly',
+      marginTop : 10,
+        flexDirection : 'row'
+    },
     container: {
         flex: 1,
         justifyContent: 'center',
@@ -152,7 +165,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
         width: '100%',
-        color : 'grey'
+        color: 'grey'
     },
     tokenContainer: {
         marginTop: 20,

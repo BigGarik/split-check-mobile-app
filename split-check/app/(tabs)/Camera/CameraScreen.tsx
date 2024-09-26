@@ -3,7 +3,7 @@ import {View, StyleSheet, Image, Alert, ActivityIndicator, TouchableOpacity, Tex
 import {useCameraPermissions} from 'expo-camera';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {handleSendImage} from '@/app/HomeScreen/handleSendImage';
-import CameraComponent from "@/app/HomeScreen/CameraComponent";
+import CameraComponent from "@/app/(tabs)/Camera/CameraComponent";
 //import {useAuth} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 import {RootStackParamList} from "@/app/(tabs)/_layout";
 //import {Ionicons} from '@expo/vector-icons';

@@ -43,8 +43,8 @@ const SplitBillDetails: React.FC = () => {
                     <Text style={styles.personAmount}>{formatter.from(item.amount)}</Text>
                 </View>
                 <Text style={styles.expandText}>
-                    {expandedPerson === item.id ? 'Свернуть' : 'Детально'}
-                    <Ionicons name={expandedPerson === item.id ? 'chevron-up' : 'chevron-down'} size={16}/>
+                    <Text>{expandedPerson === item.id ? 'Свернуть' : 'Детально'}</Text>
+                    <Ionicons name={expandedPerson === item.id ? 'chevron-up' : 'chevron-down'} size={16} style={styles.marginChevron}/>
                 </Text>
             </TouchableOpacity>
             {expandedPerson === item.id && item.items && (
@@ -79,6 +79,11 @@ const SplitBillDetails: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+
+    marginChevron : {
+        marginTop : 3
+    },
+
     container: {
         flex: 1,
         backgroundColor: '#fff',
@@ -127,6 +132,8 @@ const styles = StyleSheet.create({
         paddingRight: 16,
         paddingLeft: 16,
         paddingBottom: 8,
+        alignItems : 'center',
+        display : 'flex'
     },
     itemsList: {
         paddingHorizontal: 16,

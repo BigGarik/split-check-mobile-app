@@ -68,9 +68,8 @@ function TabNavigator() {
     const checkIfBillDetailsIsVisible = useCallback(() => {
         console.log('Checking if BillDetails is visible');
         const state = navigation.getState();
-        console.log('Navigation state:', JSON.stringify(state, null, 2));
+        //console.log('Navigation state:', JSON.stringify(state, null, 2));
 
-        // Helper function to recursively check for BillDetails
         const isBillDetailsInState = (state: any): boolean => {
             if (state.routes) {
                 for (const route of state.routes) {
@@ -88,7 +87,7 @@ function TabNavigator() {
         };
 
         const isBillDetails = isBillDetailsInState(state);
-        console.log('Is BillDetails visible:', isBillDetails);
+        //console.log('Is BillDetails visible:', isBillDetails);
         setIsBillDetailsVisible(isBillDetails);
     }, [navigation]);
 
@@ -108,48 +107,57 @@ function TabNavigator() {
         }, [checkIfBillDetailsIsVisible])
     );
 
+    // const handleShare = async () => {
+    //     console.log('Handle share called');
+    //     const state = navigation.getState();
+    //     if (state && 'routes' in state && 'index' in state) {
+    //         const currentRoute = state.routes[state.index];
+    //         const billDetailsRoute = currentRoute.state?.routes?.find(route => route.name === 'BillDetails');
+    //         const params = billDetailsRoute?.params as any;
+    //
+    //         if (params?.data) {
+    //             //console.log('Share data:', JSON.stringify(params, null, 2));
+    //             const { data, total, restaurantInfo, serviceCharge, vat } = params;
+    //
+    //             const message = `
+    //                 Restaurant: ${restaurantInfo.name}
+    //                 Table: ${restaurantInfo.tableNumber}
+    //                 Order: ${restaurantInfo.orderNumber}
+    //                 Date: ${restaurantInfo.date}
+    //                 Time: ${restaurantInfo.time}
+    //                 Waiter: ${restaurantInfo.waiter}
+    //
+    //                 Items:
+    //                 ${data.map((item: any) => `${item.name} x${item.quantity} - $${item.sum}`).join('\n')}
+    //
+    //                 Subtotal: $${total}
+    //                 Service Charge: $${serviceCharge.amount}
+    //                 VAT (${vat.rate}%): $${vat.amount}
+    //                 Total: $${total + serviceCharge.amount + vat.amount}
+    //             `;
+    //
+    //             try {
+    //                 const result = await Sharing.isAvailableAsync();
+    //                 if (result) {
+    //                     await Sharing.shareAsync(message, { dialogTitle: 'Share Bill Details' });
+    //                 }
+    //             } catch (error) {
+    //                 console.error('Error sharing:', error);
+    //             }
+    //         } else {
+    //             console.log('No data to share');
+    //         }
+    //     } else {
+    //         console.log('Invalid state for sharing');
+    //     }
+    // };
+
     const handleShare = async () => {
-        console.log('Handle share called');
-        const state = navigation.getState();
-        if (state && 'routes' in state && 'index' in state) {
-            const currentRoute = state.routes[state.index];
-            const billDetailsRoute = currentRoute.state?.routes?.find(route => route.name === 'BillDetails');
-            const params = billDetailsRoute?.params as any;
-
-            if (params?.data) {
-                console.log('Share data:', JSON.stringify(params, null, 2));
-                const { data, total, restaurantInfo, serviceCharge, vat } = params;
-
-                const message = `
-Restaurant: ${restaurantInfo.name}
-Table: ${restaurantInfo.tableNumber}
-Order: ${restaurantInfo.orderNumber}
-Date: ${restaurantInfo.date}
-Time: ${restaurantInfo.time}
-Waiter: ${restaurantInfo.waiter}
-
-Items:
-${data.map((item: any) => `${item.name} x${item.quantity} - $${item.sum}`).join('\n')}
-
-Subtotal: $${total}
-Service Charge: $${serviceCharge.amount}
-VAT (${vat.rate}%): $${vat.amount}
-Total: $${total + serviceCharge.amount + vat.amount}
-                `;
-
-                try {
-                    const result = await Sharing.isAvailableAsync();
-                    if (result) {
-                        await Sharing.shareAsync(message, { dialogTitle: 'Share Bill Details' });
-                    }
-                } catch (error) {
-                    console.error('Error sharing:', error);
-                }
-            } else {
-                console.log('No data to share');
-            }
-        } else {
-            console.log('Invalid state for sharing');
+        try {
+            await Sharing.shareAsync('https://expo.dev');
+            console.log('Shared successfully');
+        } catch (error) {
+            console.error('Error sharing:', error);
         }
     };
 
@@ -157,15 +165,53 @@ Total: $${total + serviceCharge.amount + vat.amount}
 
     return (
         <AuthProvider>
-            <Tabs.Navigator>
+            <Tabs.Navigator
+                 screenOptions={{
+                    tabBarStyle: {
+                        height: 65,
+                        paddingBottom: 5,
+                        paddingTop: 5,
+                        shadowOpacity: 0.1,
+                        shadowRadius: 3,
+                    },
+                    tabBarActiveTintColor: '#3498db',
+                    tabBarInactiveTintColor: '#bdc3c7',
+                    tabBarLabelStyle: {
+                        fontSize: 12,
+                        fontWeight: '500',
+                        marginTop: 1
+                    },
+                    tabBarItemStyle: {
+                        padding: 5,
+                    },
+                }}>
+
                 <Tabs.Screen
                     name="Home"
                     component={HomeStack}
                     options={{
-                        tabBarIcon: ({ focused, color, size }) => (
-                            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color} />
+                        tabBarIcon: ({ focused, color, size  }) => (
+                            <Ionicons name={focused ? 'home' : 'home-outline'} size={30} color={color} />
                         ),
+                        //tabBarLabel: '',
                         headerShown: false
+                    }}
+                />
+                <Tabs.Screen
+                    name="Back"
+                    component={HomeStack}
+                    options={{
+                        tabBarIcon: ({ color, size }) => (
+                            <Ionicons name="arrow-back" size={30} color={color} />
+                        ),
+                        //tabBarLabel: '',
+                        headerShown: false,
+                    }}
+                    listeners={{
+                        tabPress: (e) => {
+                            e.preventDefault();
+                            navigation.goBack();
+                        },
                     }}
                 />
                 {isBillDetailsVisible ? (
@@ -174,9 +220,10 @@ Total: $${total + serviceCharge.amount + vat.amount}
                         component={HomeStack}
                         options={{
                             tabBarIcon: ({ color, size }) => (
-                                <Ionicons name="share-outline" size={size} color={color} />
+                                <Ionicons name="share-outline" size={30} color={color} />
                             ),
-                            headerShown: false,
+                            //headerShown: false,
+                            tabBarLabel: '',
                         }}
                         listeners={{
                             tabPress: (e) => {
@@ -192,9 +239,10 @@ Total: $${total + serviceCharge.amount + vat.amount}
                         component={CameraScreen}
                         options={{
                             tabBarIcon: ({ focused, color, size }) => (
-                                <Ionicons name={focused ? 'camera' : 'camera-outline'} size={size} color={color} />
+                                <Ionicons name={focused ? 'camera' : 'camera-outline'} size={30} color={color} />
                             ),
-                            headerShown: false
+                            headerShown: false,
+                            //tabBarLabel: '',
                         }}
                     />
                 )}
@@ -203,9 +251,11 @@ Total: $${total + serviceCharge.amount + vat.amount}
                     component={ProfileScreen}
                     options={{
                         tabBarIcon: ({ focused, color, size }) => (
-                            <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color} />
+                            <Ionicons name={focused ? 'person' : 'person-outline'} size={30} color={color} />
                         ),
-                        headerShown: false
+                        headerShown: false,
+                        //tabBarLabel: '',
+
                     }}
                 />
             </Tabs.Navigator>

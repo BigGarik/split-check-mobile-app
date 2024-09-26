@@ -1,15 +1,17 @@
-import React, {useRef, useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {CameraView, CameraType} from 'expo-camera';
+import React, { useRef, useState } from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { CameraView, CameraType } from 'expo-camera';
 import * as FileSystem from 'expo-file-system';
+import { Ionicons } from '@expo/vector-icons';
 
 interface CameraComponentProps {
     onCapture: (imageUri: string) => void;
     onClose: () => void;
 }
 
-const CameraComponent: React.FC<CameraComponentProps> = ({onCapture, onClose}) => {
+const CameraComponent: React.FC<CameraComponentProps> = ({ onCapture, onClose }) => {
     const [facing, setFacing] = useState<CameraType>('back');
+    const [isTorchOn, setIsTorchOn] = useState(false);
     const cameraRef = useRef<CameraView | null>(null);
 
     const handleCapture = async () => {
@@ -32,8 +34,12 @@ const CameraComponent: React.FC<CameraComponentProps> = ({onCapture, onClose}) =
         }
     };
 
-    const toggleCameraFacing = () => {
-        setFacing(current => (current === 'back' ? 'front' : 'back'));
+    // const toggleCameraFacing = () => {
+    //     setFacing(current => (current === 'back' ? 'front' : 'back'));
+    // };
+
+    const toggleTorch = () => {
+        setIsTorchOn(current => !current);
     };
 
     return (
@@ -41,16 +47,17 @@ const CameraComponent: React.FC<CameraComponentProps> = ({onCapture, onClose}) =
             style={styles.camera}
             facing={facing}
             ref={cameraRef}
+            enableTorch={isTorchOn}
         >
+            <TouchableOpacity style={styles.iconButton} onPress={toggleTorch}>
+                    <Ionicons name={isTorchOn ? 'flash' : 'flash-off'} size={24} color="white" />
+                </TouchableOpacity>
             <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
-                    <Text style={styles.text}>Flip Camera</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={handleCapture}>
-                    <Text style={styles.text}>Take Photo</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={onClose}>
-                    <Text style={styles.text}>Close Camera</Text>
+                {/*<TouchableOpacity style={styles.iconButton} onPress={toggleCameraFacing}>*/}
+                {/*    <Ionicons name="camera-reverse" size={24} color="white" />*/}
+                {/*</TouchableOpacity>*/}
+                <TouchableOpacity style={styles.captureButton} onPress={handleCapture}>
+                    <View style={styles.innerCircle} />
                 </TouchableOpacity>
             </View>
         </CameraView>
@@ -65,18 +72,37 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         backgroundColor: 'transparent',
-        margin: 64,
+        justifyContent: 'space-around',
+        alignItems: 'flex-end',
+        marginBottom: '10%'
     },
-    button: {
-        flex: 1,
-        alignSelf: 'flex-end',
+    captureButton: {
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+        justifyContent: 'center',
         alignItems: 'center',
+        borderWidth: 4,
+        borderColor: 'white',
     },
-    text: {
-        fontSize: 18,
-        marginBottom: 10,
-        textAlign: 'center',
-        color: 'white',
+    innerCircle: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: 'white',
+    },
+    iconButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf : 'flex-end',
+
+
+        margin : 15
     },
 });
 

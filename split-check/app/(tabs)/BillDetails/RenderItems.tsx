@@ -51,7 +51,7 @@ export const renderItem = ({
                         </Text>
                         <TouchableOpacity
                             onPress={() => handleIncrement(item)}
-                            style={styles.button}
+                            style={[styles.button, currentQuantity === item.quantity && styles.disabledButton]}
                             disabled={currentQuantity === item.quantity}
                         >
                             <Text style={styles.buttonText}>+</Text>
@@ -84,7 +84,7 @@ export const renderItem = ({
                         </Text>
                         <TouchableOpacity
                             onPress={() => handleIncrement(item)}
-                            style={styles.button}
+                            style={[styles.button, currentQuantity === item.quantity && styles.disabledButton]}
                             disabled={currentQuantity === item.quantity}
                         >
                             <Text style={styles.buttonText}>+</Text>
@@ -113,7 +113,7 @@ export const renderItem = ({
                         </Text>
                         <TouchableOpacity
                             onPress={() => handleIncrement(item)}
-                            style={styles.button}
+                            style={[styles.button, currentQuantity === item.quantity && styles.disabledButton]}
                             disabled={currentQuantity === item.quantity}
                         >
                             <Text style={styles.buttonText}>+</Text>

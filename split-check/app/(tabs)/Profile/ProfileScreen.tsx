@@ -152,6 +152,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         paddingHorizontal: 10,
         width: '100%',
+        color : 'grey'
     },
     tokenContainer: {
         marginTop: 20,

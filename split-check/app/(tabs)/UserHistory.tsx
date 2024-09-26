@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     buttonsAndAmountsCont: {
         display: 'flex',
         flexDirection: 'row',
-        justifyContent : 'space-between'
+        justifyContent: 'space-between'
     },
 
     button: {
@@ -102,13 +102,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#0a84ff',
         padding: 10,
-        borderRadius : 10
+        borderRadius: 10
     },
     buttonText: {
         marginLeft: 8,
         fontSize: 16,
         fontWeight: 'bold',
-        color : 'white'
+        color: 'white'
     },
 
     hr: {

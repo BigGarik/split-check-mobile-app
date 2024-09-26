@@ -4,29 +4,7 @@ import {RouteProp} from '@react-navigation/native';
 import {renderItem} from './RenderItems';
 import {getCurrencyFormatter} from './CurrencyFormatters';
 import {StackNavigationProp} from "@react-navigation/stack";
-
-type RootStackParamList = {
-    BillDetails: {
-        data: { position: number; name: string; quantity: number; price: number; sum: number }[];
-        total: number;
-        restaurantInfo: {
-            name: string;
-            tableNumber: string;
-            orderNumber: string;
-            date: string;
-            time: string;
-            waiter: string;
-        };
-        serviceCharge: {
-            name: string;
-            amount: number;
-        };
-        vat: {
-            rate: number;
-            amount: number;
-        };
-    };
-};
+import {RootStackParamList} from "@/app/(tabs)/_layout";
 
 type BillDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'BillDetails'>;
 type BillDetailsRouteProp = RouteProp<RootStackParamList, 'BillDetails'>;
@@ -43,8 +21,8 @@ type Item = {
     sum: number;
 };
 
-const BillDetails: React.FC<Props> = ({ route, navigation }) => {
-    const { data, total, restaurantInfo, serviceCharge, vat } = route.params;
+const BillDetails: React.FC<Props> = ({route, navigation}) => {
+    const {data, total, restaurantInfo, serviceCharge, vat} = route.params;
     const [selectedItems, setSelectedItems] = useState<{ [key: number]: number }>({});
     const [yourSum, setYourSum] = useState<number>(0);
     const [currencyCode, setCurrencyCode] = useState<string>('');

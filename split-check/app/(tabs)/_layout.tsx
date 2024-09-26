@@ -7,12 +7,30 @@ import BillDetails from "@/app/(tabs)/BillDetails/BillDetails";
 import ProfileScreen from "@/app/(tabs)/ProfileScreen";
 import ShareScreen from '@/app/(tabs)/ShareScreen';
 import UserHistory from './UserHistory';
+import {NavigationContainer} from "@react-navigation/native";
+import {AuthProvider} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 
 export type RootStackParamList = {
     Index: undefined;
     BillDetails: {
         data: { position: number; name: string; quantity: number; price: number; sum: number }[];
-        total: number
+        total: number;
+        restaurantInfo: {
+            name: string;
+            tableNumber: string;
+            orderNumber: string;
+            date: string;
+            time: string;
+            waiter: string;
+        };
+        serviceCharge: {
+            name: string;
+            amount: number;
+        };
+        vat: {
+            rate: number;
+            amount: number;
+        };
     };
     UserHistory: undefined;
     Profile: undefined;
@@ -39,38 +57,40 @@ function HomeStack() {
 
 export default function RootLayout() {
     return (
-        <Tabs.Navigator>
-            <Tabs.Screen
-                name="Home"
-                component={HomeStack}
-                options={{
-                    tabBarIcon: ({focused, color, size}) => (
-                        <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color}/>
-                    ),
-                    headerShown: false
-                }}
-            />
-            <Tabs.Screen
-                name="Share"
-                component={ShareScreen}
-                options={{
-                    tabBarIcon: ({focused, color, size}) => (
-                        <Ionicons name={focused ? 'share-social-outline' : 'share-social-outline'} size={size}
-                                  color={color}/>
-                    ),
-                    headerShown: false,
-                }}
-            />
-            <Tabs.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{
-                    tabBarIcon: ({focused, color, size}) => (
-                        <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color}/>
-                    ),
-                    headerShown: false
-                }}
-            />
-        </Tabs.Navigator>
+        <AuthProvider>
+            <Tabs.Navigator>
+                <Tabs.Screen
+                    name="Home"
+                    component={HomeStack}
+                    options={{
+                        tabBarIcon: ({focused, color, size}) => (
+                            <Ionicons name={focused ? 'home' : 'home-outline'} size={size} color={color}/>
+                        ),
+                        headerShown: false
+                    }}
+                />
+                <Tabs.Screen
+                    name="Share"
+                    component={ShareScreen}
+                    options={{
+                        tabBarIcon: ({focused, color, size}) => (
+                            <Ionicons name={focused ? 'share-social-outline' : 'share-social-outline'} size={size}
+                                      color={color}/>
+                        ),
+                        headerShown: false,
+                    }}
+                />
+                <Tabs.Screen
+                    name="Profile"
+                    component={ProfileScreen}
+                    options={{
+                        tabBarIcon: ({focused, color, size}) => (
+                            <Ionicons name={focused ? 'person' : 'person-outline'} size={size} color={color}/>
+                        ),
+                        headerShown: false
+                    }}
+                />
+            </Tabs.Navigator>
+        </AuthProvider>
     );
 }

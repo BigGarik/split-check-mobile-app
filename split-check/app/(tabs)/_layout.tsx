@@ -12,6 +12,7 @@ import {AuthProvider} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 import * as Sharing from 'expo-sharing';
 import {useFocusEffect} from "expo-router";
 import GroupBillDetails from "@/app/(tabs)/BillDetails/GroupBillDetails";
+import {TouchableOpacity} from 'react-native';
 
 export type RootStackParamList = {
     Index: undefined;
@@ -64,14 +65,11 @@ function HomeStack() {
 }
 
 function TabNavigator() {
-    console.log('Rendering TabNavigator');
     const [isBillDetailsVisible, setIsBillDetailsVisible] = useState(false);
     const navigation = useNavigation();
 
     const checkIfBillDetailsIsVisible = useCallback(() => {
-        console.log('Checking if BillDetails is visible');
         const state = navigation.getState();
-        //console.log('Navigation state:', JSON.stringify(state, null, 2));
 
         const isBillDetailsInState = (state: any): boolean => {
             if (state.routes) {
@@ -89,70 +87,18 @@ function TabNavigator() {
             return false;
         };
 
-        const isBillDetails = isBillDetailsInState(state);
-        //console.log('Is BillDetails visible:', isBillDetails);
-        setIsBillDetailsVisible(isBillDetails);
+        setIsBillDetailsVisible(isBillDetailsInState(state));
     }, [navigation]);
 
     useEffect(() => {
-        console.log('Setting up navigation listener');
-        return navigation.addListener('state', () => {
-            console.log('Navigation state changed');
-            checkIfBillDetailsIsVisible();
-        });
+        return navigation.addListener('state', checkIfBillDetailsIsVisible);
     }, [navigation, checkIfBillDetailsIsVisible]);
 
     useFocusEffect(
         useCallback(() => {
-            console.log('Screen focused');
             checkIfBillDetailsIsVisible();
         }, [checkIfBillDetailsIsVisible])
     );
-
-    // const handleShare = async () => {
-    //     console.log('Handle share called');
-    //     const state = navigation.getState();
-    //     if (state && 'routes' in state && 'index' in state) {
-    //         const currentRoute = state.routes[state.index];
-    //         const billDetailsRoute = currentRoute.state?.routes?.find(route => route.name === 'BillDetails');
-    //         const params = billDetailsRoute?.params as any;
-    //
-    //         if (params?.data) {
-    //             //console.log('Share data:', JSON.stringify(params, null, 2));
-    //             const { data, total, restaurantInfo, serviceCharge, vat } = params;
-    //
-    //             const message = `
-    //                 Restaurant: ${restaurantInfo.name}
-    //                 Table: ${restaurantInfo.tableNumber}
-    //                 Order: ${restaurantInfo.orderNumber}
-    //                 Date: ${restaurantInfo.date}
-    //                 Time: ${restaurantInfo.time}
-    //                 Waiter: ${restaurantInfo.waiter}
-    //
-    //                 Items:
-    //                 ${data.map((item: any) => `${item.name} x${item.quantity} - $${item.sum}`).join('\n')}
-    //
-    //                 Subtotal: $${total}
-    //                 Service Charge: $${serviceCharge.amount}
-    //                 VAT (${vat.rate}%): $${vat.amount}
-    //                 Total: $${total + serviceCharge.amount + vat.amount}
-    //             `;
-    //
-    //             try {
-    //                 const result = await Sharing.isAvailableAsync();
-    //                 if (result) {
-    //                     await Sharing.shareAsync(message, { dialogTitle: 'Share Bill Details' });
-    //                 }
-    //             } catch (error) {
-    //                 console.error('Error sharing:', error);
-    //             }
-    //         } else {
-    //             console.log('No data to share');
-    //         }
-    //     } else {
-    //         console.log('Invalid state for sharing');
-    //     }
-    // };
 
     const handleShare = async () => {
         try {
@@ -164,6 +110,12 @@ function TabNavigator() {
     };
 
     console.log('Current isBillDetailsVisible:', isBillDetailsVisible);
+
+    const handleBackPress = () => {
+        if (navigation.canGoBack()) {
+            navigation.goBack();
+        }
+    };
 
     return (
         <AuthProvider>
@@ -202,19 +154,34 @@ function TabNavigator() {
                 <Tabs.Screen
                     name="Back"
                     component={HomeStack}
-                    options={{
+                    options={({ navigation }) => ({
                         tabBarIcon: ({ color }) => (
-                            <Ionicons name="arrow-back" size={30} color={color} />
+                            <Ionicons
+                                name="arrow-back"
+                                size={30}
+                                color={navigation.canGoBack() ? color : '#bdc3c7'}
+                            />
                         ),
-                        //tabBarLabel: '',
                         headerShown: false,
-                    }}
-                    listeners={{
-                        tabPress: (e) => {
-                            e.preventDefault();
-                            navigation.goBack();
+                        tabBarButton: (props) => {
+                            const handleBackPress = () => {
+                                if (navigation.canGoBack()) {
+                                    navigation.goBack();
+                                }
+                            };
+
+                            return (
+                                <TouchableOpacity
+                                    {...props}
+                                    onPress={handleBackPress}
+                                    style={[
+                                        props.style,
+                                        { opacity: navigation.canGoBack() ? 1 : 0.5 }
+                                    ]}
+                                />
+                            );
                         },
-                    }}
+                    })}
                 />
                 {isBillDetailsVisible ? (
                     <Tabs.Screen

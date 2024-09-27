@@ -1,7 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState, useMemo} from 'react';
 import {View, Text, StyleSheet, SafeAreaView, FlatList, TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {getCurrencyFormatter} from './CurrencyFormatters';
+import {RouteProp} from '@react-navigation/native';
+import {StackNavigationProp} from "@react-navigation/stack";
+import {RootStackParamList} from "@/app/(tabs)/_layout";
+
+type GroupBillDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'GroupBillDetails'>;
+type GroupBillDetailsRouteProp = RouteProp<RootStackParamList, 'GroupBillDetails'>;
+
+type Props = {
+    navigation: GroupBillDetailsNavigationProp;
+    route: GroupBillDetailsRouteProp;
+};
 
 type PersonBill = {
     id: string;
@@ -10,30 +21,33 @@ type PersonBill = {
     items?: { name: string; quantity: number; price: number }[];
 };
 
-const people: PersonBill[] = [
-    {
-        id: '1',
-        name: 'Eduard',
-        amount: 15600,
-        items: [{name: 'Печеный батат', quantity: 1, price: 1600}, {name: 'Бешбармак', quantity: 1, price: 7400}]
-    },
-    {
-        id: '2',
-        name: 'Igor',
-        amount: 9000,
-        items: [{name: 'Печеный батат', quantity: 1, price: 1600}, {name: 'Бешбармак', quantity: 1, price: 7400}]
-    },
-    {id: '3', name: 'Shawn', amount: 0},
-];
-
-const SplitBillDetails: React.FC = () => {
+const GroupBillDetails: React.FC<Props> = ({route}) => {
+    const {selectedItems, yourSum, totalBill, totalWithService} = route.params;
     const [expandedPerson, setExpandedPerson] = useState<string | null>(null);
     const [currencyCode, setCurrencyCode] = useState<string>('');
 
-    const totalBill = 24600;
-    const totalWithService = 36960;
-
     const formatter = getCurrencyFormatter(currencyCode);
+
+    const people: PersonBill[] = [
+        {id: '1', name: 'You', amount: yourSum, items: selectedItems},
+        {
+            id: '2',
+            name: 'Eduard',
+            amount: 15600,
+            items: [{name: 'Печеный батат', quantity: 1, price: 1600}, {name: 'Бешбармак', quantity: 1, price: 7400}]
+        },
+        {
+            id: '3',
+            name: 'Igor',
+            amount: 9000,
+            items: [{name: 'Печеный батат', quantity: 1, price: 1600}, {name: 'Бешбармак', quantity: 1, price: 7400}]
+        },
+        {id: '4', name: 'Shawn', amount: 0},
+    ];
+
+    const totalSelectedCost = useMemo(() => {
+        return people.reduce((acc, person) => acc + person.amount, 0);
+    }, [people]);
 
     const renderPersonBill = ({item}: { item: PersonBill }) => (
         <View style={styles.personContainer}>
@@ -44,14 +58,15 @@ const SplitBillDetails: React.FC = () => {
                 </View>
                 <Text style={styles.expandText}>
                     <Text>{expandedPerson === item.id ? 'Свернуть' : 'Детально'}</Text>
-                    <Ionicons name={expandedPerson === item.id ? 'chevron-up' : 'chevron-down'} size={16} style={styles.marginChevron}/>
+                    <Ionicons name={expandedPerson === item.id ? 'chevron-up' : 'chevron-down'} size={16}
+                              style={styles.marginChevron}/>
                 </Text>
             </TouchableOpacity>
             {expandedPerson === item.id && item.items && (
                 <View style={styles.itemsList}>
                     {item.items.map((subItem, index) => (
                         <View key={index} style={styles.subItem}>
-                            <Text>{`${index + 1}. ${subItem.name}`}</Text>
+                            <Text style={styles.itemName}>{`${index + 1}. ${subItem.name}`}</Text>
                             <Text>{`${subItem.quantity}  ${formatter.from(subItem.price)}`}</Text>
                         </View>
                     ))}
@@ -65,7 +80,10 @@ const SplitBillDetails: React.FC = () => {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>ИТОГО по чеку</Text>
                 <Text style={styles.headerTotal}>
-                    {formatter.from(totalBill)}/{formatter.from(totalWithService)}
+                    {formatter.from(totalSelectedCost)} / {formatter.from(totalBill)}
+                </Text>
+                <Text style={styles.headerSubtotal}>
+                    С обслуживанием: {formatter.from(totalWithService)}
                 </Text>
             </View>
             <FlatList
@@ -79,9 +97,8 @@ const SplitBillDetails: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-
-    marginChevron : {
-        marginTop : 3
+    itemName : {
+      maxWidth : '60%'
     },
 
     container: {
@@ -90,7 +107,7 @@ const styles = StyleSheet.create({
     },
     header: {
         padding: 16,
-        gap: 5
+        gap: 5,
     },
     headerTitle: {
         fontSize: 18,
@@ -102,6 +119,11 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    headerSubtotal: {
+        fontSize: 16,
+        textAlign: 'center',
+        color: '#666',
+    },
     listContainer: {
         paddingHorizontal: 16,
     },
@@ -110,7 +132,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f5f5f5',
         borderRadius: 5,
         overflow: 'hidden',
-        minHeight : 100
+        minHeight: 100,
     },
     personHeader: {
         flexDirection: 'row',
@@ -132,8 +154,8 @@ const styles = StyleSheet.create({
         paddingRight: 16,
         paddingLeft: 16,
         paddingBottom: 8,
-        alignItems : 'center',
-        display : 'flex'
+        alignItems: 'center',
+        display: 'flex',
     },
     itemsList: {
         paddingHorizontal: 16,
@@ -144,6 +166,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginTop: 8,
     },
+    marginChevron: {
+        marginTop: 3,
+    },
 });
 
-export default SplitBillDetails;
+export default GroupBillDetails;

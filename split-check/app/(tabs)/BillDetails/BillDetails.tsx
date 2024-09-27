@@ -79,6 +79,29 @@ const BillDetails: React.FC<Props> = ({ route, navigation }) => {
         });
     };
 
+     const navigateToGroupBillDetails = () => {
+        const selectedItemsDetails = Object.entries(selectedItems).map(([position, quantity]) => {
+            const item = data.find(item => item.position === Number(position));
+            if (item) {
+                const splitQuantity = splitQuantities[item.position] || item.quantity;
+                const splitPrice = item.sum / splitQuantity;
+                return {
+                    name: item.name,
+                    quantity: quantity,
+                    price: splitPrice * quantity
+                };
+            }
+            return null;
+        }).filter((item): item is NonNullable<typeof item> => item !== null);
+
+        navigation.navigate('GroupBillDetails', {
+            selectedItems: selectedItemsDetails,
+            yourSum: yourSum,
+            totalBill: total,
+            totalWithService: total + serviceCharge.amount
+        });
+    };
+
     const renderItem = ({ item }: { item: Item }) => (
         <BillItem
             item={item}
@@ -104,7 +127,7 @@ const BillDetails: React.FC<Props> = ({ route, navigation }) => {
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Всего выбрано</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('GroupBillDetails')}>
+                    <TouchableOpacity onPress={navigateToGroupBillDetails}>
                         <Text style={styles.sumValue}>{formatter.from(yourSum)}</Text>
                     </TouchableOpacity>
                 </View>

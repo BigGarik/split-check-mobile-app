@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
-import { getCurrencyFormatter } from './CurrencyFormatters';
-import { Ionicons } from '@expo/vector-icons';
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet, Modal} from 'react-native';
+import {getCurrencyFormatter} from './CurrencyFormatters';
+import {Ionicons} from '@expo/vector-icons';
 
 type Item = {
     position: number;
@@ -22,14 +22,14 @@ type BillItemProps = {
 };
 
 export const BillItem: React.FC<BillItemProps> = ({
-    item,
-    selectedItems,
-    splitQuantities,
-    handleIncrement,
-    handleDecrement,
-    handleSplitChange,
-    currencyCode
-}) => {
+                                                      item,
+                                                      selectedItems,
+                                                      splitQuantities,
+                                                      handleIncrement,
+                                                      handleDecrement,
+                                                      handleSplitChange,
+                                                      currencyCode
+                                                  }) => {
     const [modalVisible, setModalVisible] = useState(false);
     const currentQuantity = selectedItems[item.position] || 0;
     const splitQuantity = splitQuantities[item.position] || item.quantity;
@@ -39,7 +39,7 @@ export const BillItem: React.FC<BillItemProps> = ({
     const formatter = getCurrencyFormatter(currencyCode);
 
     const handleSplitIncrement = () => {
-        handleSplitChange(item, Math.min(splitQuantity + 1, 10));
+        handleSplitChange(item, Math.min(splitQuantity + 1));
     };
 
     const handleSplitDecrement = () => {
@@ -54,9 +54,9 @@ export const BillItem: React.FC<BillItemProps> = ({
                 <View>
                     <TouchableOpacity
                         onPress={() => setModalVisible(true)}
-                        style={styles.splitButton}
+                        style={[styles.splitButton, styles.button]}
                     >
-                        <Ionicons name="cut-outline" size={20} color="white" />
+                        <Ionicons name="cut-outline" size={20} color="white"/>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.quantityContainer}>
@@ -222,9 +222,7 @@ const styles = StyleSheet.create({
     },
     splitButton: {
         backgroundColor: '#4a90e2',
-        padding: 5,
-        borderRadius: 50,
-        marginBottom: 5,
+
     },
     splitButtonText: {
         color: 'white',

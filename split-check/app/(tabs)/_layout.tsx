@@ -39,7 +39,16 @@ export type RootStackParamList = {
     };
     UserHistory: undefined;
     Profile: undefined;
-    GroupBillDetails : undefined;
+    GroupBillDetails: {
+        selectedItems: Array<{
+            name: string;
+            quantity: number;
+            price: number;
+        }>;
+        yourSum: number;
+        totalBill: number;
+        totalWithService: number;
+    };
 };
 
 // type TabParamList = {

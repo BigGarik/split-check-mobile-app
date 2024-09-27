@@ -43,7 +43,7 @@ export const BillItem: React.FC<BillItemProps> = ({
     };
 
     const handleSplitDecrement = () => {
-        handleSplitChange(item, Math.max(splitQuantity - 1, 2));
+        handleSplitChange(item, Math.max(splitQuantity - 1, 1));
     };
 
     return (

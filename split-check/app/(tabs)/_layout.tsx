@@ -12,7 +12,7 @@ import {AuthProvider} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 import * as Sharing from 'expo-sharing';
 import {useFocusEffect} from "expo-router";
 import GroupBillDetails from "@/app/(tabs)/BillDetails/GroupBillDetails";
-import {TouchableOpacity} from "react-native";
+//import {TouchableOpacity} from "react-native";
 
 export type RootStackParamList = {
     Index: undefined;
@@ -160,31 +160,49 @@ function TabNavigator() {
                 <Tabs.Screen
                     name="Back"
                     component={HomeStack}
-                    options={({ navigation }) => ({
+                    options={{
                         tabBarIcon: ({ color }) => (
-                            <Ionicons
-                                name="arrow-back"
-                                size={30}
-                                color={navigation.canGoBack() ? color : '#bdc3c7'}
-                            />
+                            <Ionicons name="arrow-back" size={30} color={color} />
                         ),
+                        //tabBarLabel: '',
                         headerShown: false,
-                        tabBarButton: (props) => (
-                            <TouchableOpacity
-                                {...props}
-                                onPress={() => {
-                                    if (navigation.canGoBack()) {
-                                        navigation.goBack();
-                                    }
-                                }}
-                                style={[
-                                    props.style,
-                                    { opacity: navigation.canGoBack() ? 1 : 0.5 }
-                                ]}
-                            />
-                        ),
-                    })}
+                    }}
+                    listeners={{
+                        tabPress: (e) => {
+                            e.preventDefault();
+                            navigation.goBack();
+                        },
+                    }}
                 />
+
+                {/*<Tabs.Screen*/}
+                {/*    name="Back"*/}
+                {/*    component={HomeStack}*/}
+                {/*    options={({ navigation }) => ({*/}
+                {/*        tabBarIcon: ({ color }) => (*/}
+                {/*            <Ionicons*/}
+                {/*                name="arrow-back"*/}
+                {/*                size={30}*/}
+                {/*                color={navigation.canGoBack() ? color : '#bdc3c7'}*/}
+                {/*            />*/}
+                {/*        ),*/}
+                {/*        headerShown: false,*/}
+                {/*        tabBarButton: (props) => (*/}
+                {/*            <TouchableOpacity*/}
+                {/*                {...props}*/}
+                {/*                onPress={() => {*/}
+                {/*                    if (navigation.canGoBack()) {*/}
+                {/*                        navigation.goBack();*/}
+                {/*                    }*/}
+                {/*                }}*/}
+                {/*                style={[*/}
+                {/*                    props.style,*/}
+                {/*                    { opacity: navigation.canGoBack() ? 1 : 0.5 }*/}
+                {/*                ]}*/}
+                {/*            />*/}
+                {/*        ),*/}
+                {/*    })}*/}
+                {/*/>*/}
                 {isBillDetailsVisible ? (
                     <Tabs.Screen
                         name="Share"

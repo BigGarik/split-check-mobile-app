@@ -1,6 +1,7 @@
-import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {getCurrencyFormatter} from './CurrencyFormatters';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { getCurrencyFormatter } from './CurrencyFormatters';
+import { Ionicons } from '@expo/vector-icons';
 
 type Item = {
     position: number;
@@ -10,117 +11,157 @@ type Item = {
     sum: number;
 };
 
-type RenderItemProps = {
+type BillItemProps = {
     item: Item;
-    index: number;
     selectedItems: { [key: number]: number };
+    splitQuantities: { [key: number]: number };
     handleIncrement: (item: Item) => void;
     handleDecrement: (item: Item) => void;
+    handleSplitChange: (item: Item, newSplitQuantity: number) => void;
     currencyCode: string;
 };
 
-export const renderItem = ({item,index,selectedItems,handleIncrement,handleDecrement,currencyCode}: RenderItemProps) => {
+export const BillItem: React.FC<BillItemProps> = ({
+    item,
+    selectedItems,
+    splitQuantities,
+    handleIncrement,
+    handleDecrement,
+    handleSplitChange,
+    currencyCode
+}) => {
+    const [modalVisible, setModalVisible] = useState(false);
     const currentQuantity = selectedItems[item.position] || 0;
-    const totalPrice = item.price * currentQuantity;
+    const splitQuantity = splitQuantities[item.position] || item.quantity;
+    const splitPrice = item.sum / splitQuantity;
+    const totalPrice = splitPrice * currentQuantity;
 
     const formatter = getCurrencyFormatter(currencyCode);
 
-    if (index === 2) {
-        const isSelected = currentQuantity >= 1;
-        return (
-            <View style={[styles.row, isSelected && styles.selectedRow]}>
-                <Text style={styles.nameColumn}>{item.name}</Text>
-                <View style={styles.quantityAndAmount}>
-                    <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                            onPress={() => handleDecrement(item)}
-                            style={[styles.button, currentQuantity === 0 && styles.disabledButton]}
-                            disabled={currentQuantity === 0}
-                        >
-                            <Text style={styles.buttonText}>-</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.quantityText}>
-                            <Text style={styles.redFontColor}>{currentQuantity}</Text>/{item.quantity}
-                        </Text>
-                        <TouchableOpacity
-                            onPress={() => handleIncrement(item)}
-                            style={[styles.button, currentQuantity === item.quantity && styles.disabledButton]}
-                            disabled={currentQuantity === item.quantity}
-                        >
-                            <Text style={styles.buttonText}>+</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={styles.priceColumn}>
-                        <Text
-                            style={styles.redFontColor}>{formatter.from(totalPrice)}</Text> / <Text>{formatter.from(item.sum)}</Text>
-                    </Text>
-                </View>
-            </View>
-        );
-    } else if (index === 3) {
-        const isSelected = currentQuantity >= 1;
-        return (
-            <View style={[styles.row, isSelected && styles.selectedRow]}>
-                <Text style={styles.nameColumn}>{item.name}</Text>
-                <View style={styles.quantityAndAmount}>
-                    <Text style={styles.priceColumn}>{formatter.from(item.sum)}</Text>
-                    <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                            onPress={() => handleDecrement(item)}
-                            style={[styles.button, currentQuantity === 0 && styles.disabledButton]}
-                            disabled={currentQuantity === 0}
-                        >
-                            <Text style={styles.buttonText}>-</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.quantityText}>
-                            {currentQuantity}/{item.quantity}
-                        </Text>
-                        <TouchableOpacity
-                            onPress={() => handleIncrement(item)}
-                            style={[styles.button, currentQuantity === item.quantity && styles.disabledButton]}
-                            disabled={currentQuantity === item.quantity}
-                        >
-                            <Text style={styles.buttonText}>+</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </View>
-        );
-    } else {
-        const isSelected = currentQuantity >= 1;
-        return (
+    const handleSplitIncrement = () => {
+        handleSplitChange(item, Math.min(splitQuantity + 1, 10));
+    };
 
-            <View style={[styles.row, isSelected && styles.selectedRow]}>
-                <Text style={styles.nameColumn}>{item.name}</Text>
-                <View style={styles.quantityAndAmountDefault}>
-                    <View style={styles.quantityContainer}>
-                        <TouchableOpacity
-                            onPress={() => handleDecrement(item)}
-                            style={[styles.button, currentQuantity === 0 && styles.disabledButton]}
-                            disabled={currentQuantity === 0}
-                        >
-                            <Text style={styles.buttonText}>-</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.quantityText}>
-                            {currentQuantity}/{item.quantity}
-                        </Text>
-                        <TouchableOpacity
-                            onPress={() => handleIncrement(item)}
-                            style={[styles.button, currentQuantity === item.quantity && styles.disabledButton]}
-                            disabled={currentQuantity === item.quantity}
-                        >
-                            <Text style={styles.buttonText}>+</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <Text style={styles.priceColumn}>{formatter.from(item.sum)}</Text>
+    const handleSplitDecrement = () => {
+        handleSplitChange(item, Math.max(splitQuantity - 1, 2));
+    };
+
+    return (
+        <View style={[styles.row, currentQuantity > 0 && styles.selectedRow]}>
+            <Text style={styles.nameColumn}>{item.name}</Text>
+
+            <View style={styles.quantityAndAmount}>
+                <View>
+                    <TouchableOpacity
+                        onPress={() => setModalVisible(true)}
+                        style={styles.splitButton}
+                    >
+                        <Ionicons name="cut-outline" size={20} color="white" />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.quantityContainer}>
+                    <TouchableOpacity
+                        onPress={() => handleDecrement(item)}
+                        style={[styles.button, currentQuantity === 0 && styles.disabledButton]}
+                        disabled={currentQuantity === 0}
+                    >
+                        <Text style={styles.buttonText}>-</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.quantityText}>
+                        <Text style={styles.redFontColor}>{currentQuantity}</Text>/{splitQuantity}
+                    </Text>
+                    <TouchableOpacity
+                        onPress={() => handleIncrement(item)}
+                        style={[styles.button, currentQuantity === splitQuantity && styles.disabledButton]}
+                        disabled={currentQuantity === splitQuantity}
+                    >
+                        <Text style={styles.buttonText}>+</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.priceInfo}>
+                    <Text style={styles.priceColumn}>
+                        <Text style={styles.redFontColor}>{formatter.from(totalPrice)}</Text>
+                    </Text>
+                    {/*<Text style={styles.splitPriceText}>*/}
+                    {/*    ({formatter.from(splitPrice)} x {currentQuantity})*/}
+                    {/*</Text>*/}
+                    <Text style={styles.totalPriceText}>/ {formatter.from(item.sum)}</Text>
                 </View>
             </View>
-        );
-    }
+
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>Adjust Split Quantity</Text>
+                        <View style={styles.splitControls}>
+                            <TouchableOpacity onPress={handleSplitDecrement} style={styles.splitControlButton}>
+                                <Text style={styles.buttonText}>-</Text>
+                            </TouchableOpacity>
+                            <Text style={styles.splitQuantityText}>{splitQuantity}</Text>
+                            <TouchableOpacity onPress={handleSplitIncrement} style={styles.splitControlButton}>
+                                <Text style={styles.buttonText}>+</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+                            <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        </View>
+    );
 };
 
-
 const styles = StyleSheet.create({
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 15,
+    },
+    splitControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    splitControlButton: {
+        backgroundColor: '#4a90e2',
+        borderRadius: 50,
+        width: 40,
+        height: 40,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    splitQuantityText: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginHorizontal: 20,
+    },
+    closeButton: {
+        backgroundColor: '#4a90e2',
+        padding: 10,
+        borderRadius: 5,
+    },
+    closeButtonText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
     row: {
         flexDirection: 'column',
         paddingVertical: 10,
@@ -130,7 +171,9 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         borderBottomColor: '#ccc',
         borderBottomWidth: 2,
-
+    },
+    selectedRow: {
+        backgroundColor: '#a7e0a5',
     },
     nameColumn: {
         fontSize: 16,
@@ -142,26 +185,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-
-    },
-
-    selectedRow: {
-        backgroundColor: '#a7e0a5',
-    },
-
-    quantityAndAmountDefault: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '70%',
-        alignSelf: 'flex-end'
-
     },
     quantityContainer: {
         flexDirection: 'row',
         alignItems: 'center',
     },
-
     quantityText: {
         fontSize: 14,
         paddingHorizontal: 10,
@@ -192,50 +220,25 @@ const styles = StyleSheet.create({
     disabledButton: {
         backgroundColor: '#bee9c9',
     },
-    specialRow: {
-        padding: 10,
-        borderRadius: 8,
-        marginVertical: 5,
-        marginHorizontal: 15,
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-    },
-    specialRowSelected: {
-        backgroundColor: '#d4edda',
-    },
-    specialNameColumn: {
-        fontSize: 18,
-        fontWeight: 'bold',
+    splitButton: {
+        backgroundColor: '#4a90e2',
+        padding: 5,
+        borderRadius: 50,
         marginBottom: 5,
     },
-    specialQuantityAndAmount: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    specialButton: {
-        backgroundColor: '#28a745',
-        borderRadius: 15,
-        width: 30,
-        height: 30,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    specialDisabledButton: {
-        backgroundColor: '#a3d7b5',
-    },
-    specialButtonText: {
-        color: '#fff',
-        fontSize: 18,
+    splitButtonText: {
+        color: 'white',
         fontWeight: 'bold',
     },
-    specialQuantityText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginHorizontal: 10,
+    priceInfo: {
+        alignItems: 'flex-end',
     },
-    specialPriceColumn: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    splitPriceText: {
+        fontSize: 12,
+        color: '#666',
+    },
+    totalPriceText: {
+        fontSize: 14,
+        color: '#666',
     },
 });

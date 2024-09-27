@@ -12,7 +12,7 @@ import {AuthProvider} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 import * as Sharing from 'expo-sharing';
 import {useFocusEffect} from "expo-router";
 import GroupBillDetails from "@/app/(tabs)/BillDetails/GroupBillDetails";
-import {TouchableOpacity} from 'react-native';
+import {TouchableOpacity} from "react-native";
 
 export type RootStackParamList = {
     Index: undefined;
@@ -65,11 +65,14 @@ function HomeStack() {
 }
 
 function TabNavigator() {
+    console.log('Rendering TabNavigator');
     const [isBillDetailsVisible, setIsBillDetailsVisible] = useState(false);
     const navigation = useNavigation();
 
     const checkIfBillDetailsIsVisible = useCallback(() => {
+        console.log('Checking if BillDetails is visible');
         const state = navigation.getState();
+        //console.log('Navigation state:', JSON.stringify(state, null, 2));
 
         const isBillDetailsInState = (state: any): boolean => {
             if (state.routes) {
@@ -87,18 +90,27 @@ function TabNavigator() {
             return false;
         };
 
-        setIsBillDetailsVisible(isBillDetailsInState(state));
+        const isBillDetails = isBillDetailsInState(state);
+        //console.log('Is BillDetails visible:', isBillDetails);
+        setIsBillDetailsVisible(isBillDetails);
     }, [navigation]);
 
     useEffect(() => {
-        return navigation.addListener('state', checkIfBillDetailsIsVisible);
+        console.log('Setting up navigation listener');
+        return navigation.addListener('state', () => {
+            console.log('Navigation state changed');
+            checkIfBillDetailsIsVisible();
+        });
     }, [navigation, checkIfBillDetailsIsVisible]);
 
     useFocusEffect(
         useCallback(() => {
+            console.log('Screen focused');
             checkIfBillDetailsIsVisible();
         }, [checkIfBillDetailsIsVisible])
     );
+
+
 
     const handleShare = async () => {
         try {
@@ -110,12 +122,6 @@ function TabNavigator() {
     };
 
     console.log('Current isBillDetailsVisible:', isBillDetailsVisible);
-
-    const handleBackPress = () => {
-        if (navigation.canGoBack()) {
-            navigation.goBack();
-        }
-    };
 
     return (
         <AuthProvider>
@@ -163,24 +169,20 @@ function TabNavigator() {
                             />
                         ),
                         headerShown: false,
-                        tabBarButton: (props) => {
-                            const handleBackPress = () => {
-                                if (navigation.canGoBack()) {
-                                    navigation.goBack();
-                                }
-                            };
-
-                            return (
-                                <TouchableOpacity
-                                    {...props}
-                                    onPress={handleBackPress}
-                                    style={[
-                                        props.style,
-                                        { opacity: navigation.canGoBack() ? 1 : 0.5 }
-                                    ]}
-                                />
-                            );
-                        },
+                        tabBarButton: (props) => (
+                            <TouchableOpacity
+                                {...props}
+                                onPress={() => {
+                                    if (navigation.canGoBack()) {
+                                        navigation.goBack();
+                                    }
+                                }}
+                                style={[
+                                    props.style,
+                                    { opacity: navigation.canGoBack() ? 1 : 0.5 }
+                                ]}
+                            />
+                        ),
                     })}
                 />
                 {isBillDetailsVisible ? (

@@ -1,11 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {Text, View, StyleSheet, FlatList, SafeAreaView, TouchableOpacity} from 'react-native';
-import {RouteProp} from '@react-navigation/native';
-import {renderItem} from './RenderItems';
-import {getCurrencyFormatter} from './CurrencyFormatters';
-import {StackNavigationProp} from "@react-navigation/stack";
-import {RootStackParamList} from "@/app/(tabs)/_layout";
-
+import React, { useState, useEffect } from 'react';
+import { View, Text, SafeAreaView, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "@/app/(tabs)/_layout";
+import { getCurrencyFormatter } from './CurrencyFormatters';
+import {BillItem} from "@/app/(tabs)/BillDetails/RenderItems";
 
 type BillDetailsNavigationProp = StackNavigationProp<RootStackParamList, 'BillDetails'>;
 type BillDetailsRouteProp = RouteProp<RootStackParamList, 'BillDetails'>;
@@ -23,9 +22,10 @@ type Item = {
     sum: number;
 };
 
-const BillDetails: React.FC<Props> = ({route, navigation}) => {
-    const {data, total, restaurantInfo, serviceCharge, vat} = route.params;
+const BillDetails: React.FC<Props> = ({ route, navigation }) => {
+    const { data, total, restaurantInfo, serviceCharge, vat } = route.params;
     const [selectedItems, setSelectedItems] = useState<{ [key: number]: number }>({});
+    const [splitQuantities, setSplitQuantities] = useState<{ [key: number]: number }>({});
     const [yourSum, setYourSum] = useState<number>(0);
     const [currencyCode, setCurrencyCode] = useState<string>('');
 
@@ -34,16 +34,22 @@ const BillDetails: React.FC<Props> = ({route, navigation}) => {
     useEffect(() => {
         const sum = Object.entries(selectedItems).reduce((acc, [position, quantity]) => {
             const item = data.find(item => item.position === Number(position));
-            return acc + (item ? item.price * quantity : 0);
+            if (item) {
+                const splitQuantity = splitQuantities[item.position] || item.quantity;
+                const splitPrice = item.sum / splitQuantity;
+                return acc + (splitPrice * quantity);
+            }
+            return acc;
         }, 0);
         setYourSum(sum);
-    }, [selectedItems, data]);
+    }, [selectedItems, splitQuantities, data]);
 
     const handleIncrement = (item: Item) => {
         setSelectedItems(prev => {
             const currentQuantity = prev[item.position] || 0;
-            const newQuantity = Math.min(currentQuantity + 1, item.quantity);
-            return {...prev, [item.position]: newQuantity};
+            const splitQuantity = splitQuantities[item.position] || item.quantity;
+            const newQuantity = Math.min(currentQuantity + 1, splitQuantity);
+            return { ...prev, [item.position]: newQuantity };
         });
     };
 
@@ -52,15 +58,40 @@ const BillDetails: React.FC<Props> = ({route, navigation}) => {
             const currentQuantity = prev[item.position] || 0;
             const newQuantity = Math.max(currentQuantity - 1, 0);
             if (newQuantity === 0) {
-                const {[item.position]: _, ...rest} = prev;
+                const { [item.position]: _, ...rest } = prev;
                 return rest;
             }
-            return {...prev, [item.position]: newQuantity};
+            return { ...prev, [item.position]: newQuantity };
         });
     };
-    const VAT_RATE = 12;
-    //const VAT_RATE = vat;
 
+    const handleSplitChange = (item: Item, newSplitQuantity: number) => {
+        setSplitQuantities(prev => ({
+            ...prev,
+            [item.position]: newSplitQuantity
+        }));
+        setSelectedItems(prev => {
+            const currentQuantity = prev[item.position] || 0;
+            if (currentQuantity > newSplitQuantity) {
+                return { ...prev, [item.position]: newSplitQuantity };
+            }
+            return prev;
+        });
+    };
+
+    const renderItem = ({ item }: { item: Item }) => (
+        <BillItem
+            item={item}
+            selectedItems={selectedItems}
+            splitQuantities={splitQuantities}
+            handleIncrement={handleIncrement}
+            handleDecrement={handleDecrement}
+            handleSplitChange={handleSplitChange}
+            currencyCode={currencyCode}
+        />
+    );
+
+    const VAT_RATE = 12;
     const calculateVAT = (amount: number) => (amount * VAT_RATE) / 100;
     const totalWithVAT = total + calculateVAT(total);
 
@@ -73,33 +104,18 @@ const BillDetails: React.FC<Props> = ({route, navigation}) => {
                 </View>
                 <View style={styles.sumContainer}>
                     <Text style={styles.sumLabel}>Всего выбрано</Text>
-                    <TouchableOpacity
-                        onPress={() => navigation.navigate('GroupBillDetails')}
-                    >
-                    <Text style={styles.sumValue}>{formatter.from(yourSum)}</Text>
-                </TouchableOpacity>
-
+                    <TouchableOpacity onPress={() => navigation.navigate('GroupBillDetails')}>
+                        <Text style={styles.sumValue}>{formatter.from(yourSum)}</Text>
+                    </TouchableOpacity>
                 </View>
-
-
             </View>
             <View style={styles.hr}/>
 
-            <View style={styles.listContainer}>
-                <FlatList
-                    data={data}
-                    renderItem={({item, index}) => renderItem({
-                        item,
-                        index,
-                        selectedItems,
-                        handleIncrement,
-                        handleDecrement,
-                        currencyCode
-                    })}
-                    keyExtractor={(item) => item.position.toString()}
-                    extraData={selectedItems}
-                />
-            </View>
+            <FlatList
+                data={data}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.position.toString()}
+            />
 
             <View style={styles.footer}>
                 <View style={styles.sumContainer}>
@@ -121,7 +137,6 @@ const BillDetails: React.FC<Props> = ({route, navigation}) => {
     );
 };
 
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -131,17 +146,11 @@ const styles = StyleSheet.create({
         padding: 15,
         paddingBottom: 0
     },
-
     hr: {
         borderBottomColor: '#ccc',
         borderBottomWidth: 1,
         marginVertical: 10,
         width: '100%',
-    },
-    listContainer: {
-        flex: 1,
-        padding: 10,
-        paddingTop: 0
     },
     footer: {
         padding: 15,

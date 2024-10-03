@@ -62,7 +62,7 @@ export const BillItem: React.FC<BillItemProps> = ({
                 <View style={styles.quantityContainer}>
                     <TouchableOpacity
                         onPress={() => handleDecrement(item)}
-                        style={[styles.button, currentQuantity === 0 && styles.disabledButton]}
+                        style={[styles.button,styles.incrementButton, currentQuantity === 0 && styles.disabledButton]}
                         disabled={currentQuantity === 0}
                     >
                         <Text style={styles.buttonText}>-</Text>
@@ -72,7 +72,7 @@ export const BillItem: React.FC<BillItemProps> = ({
                     </Text>
                     <TouchableOpacity
                         onPress={() => handleIncrement(item)}
-                        style={[styles.button, currentQuantity === splitQuantity && styles.disabledButton]}
+                        style={[styles.button,styles.incrementButton, currentQuantity === splitQuantity && styles.disabledButton]}
                         disabled={currentQuantity === splitQuantity}
                     >
                         <Text style={styles.buttonText}>+</Text>
@@ -97,7 +97,7 @@ export const BillItem: React.FC<BillItemProps> = ({
             >
                 <View style={styles.modalOverlay}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Adjust Split Quantity</Text>
+                        <Text style={styles.modalTitle}>Adjust Quantity</Text>
                         <View style={styles.splitControls}>
                             <TouchableOpacity onPress={handleSplitDecrement} style={styles.splitControlButton}>
                                 <Text style={styles.buttonText}>-</Text>
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         flexWrap: 'wrap',
         flex: 1,
-        marginBottom: 5,
+        marginBottom: 10,
     },
     quantityAndAmount: {
         flexDirection: 'row',
@@ -205,13 +205,17 @@ const styles = StyleSheet.create({
         fontWeight: 'normal'
     },
     button: {
-        backgroundColor: '#34c759',
         borderRadius: 50,
         width: 35,
         height: 35,
         alignItems: 'center',
         justifyContent: 'center',
     },
+
+    incrementButton : {
+        backgroundColor: '#34c759',
+    },
+
     buttonText: {
         color: '#fff',
         fontSize: 18,
@@ -230,6 +234,8 @@ const styles = StyleSheet.create({
     },
     priceInfo: {
         alignItems: 'flex-end',
+        minWidth : 100
+
     },
     splitPriceText: {
         fontSize: 12,

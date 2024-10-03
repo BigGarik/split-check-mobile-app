@@ -67,7 +67,8 @@ const GroupBillDetails: React.FC<Props> = ({route}) => {
                     {item.items.map((subItem, index) => (
                         <View key={index} style={styles.subItem}>
                             <Text style={styles.itemName}>{`${index + 1}. ${subItem.name}`}</Text>
-                            <Text>{`${subItem.quantity}  ${formatter.from(subItem.price)}`}</Text>
+                            <Text>{subItem.quantity}  </Text>
+                            <Text style={styles.minWidthPrice} >${formatter.from(subItem.price)}</Text>
                         </View>
                     ))}
                 </View>
@@ -97,8 +98,17 @@ const GroupBillDetails: React.FC<Props> = ({route}) => {
 };
 
 const styles = StyleSheet.create({
-    itemName : {
-      maxWidth : '60%'
+
+    minWidthPrice : {
+        minWidth : 100,
+        display : 'flex',
+        justifyContent : 'flex-end'
+
+    },
+
+    itemName: {
+        maxWidth: '60%',
+        width: '60%'
     },
 
     container: {
@@ -163,11 +173,12 @@ const styles = StyleSheet.create({
     },
     subItem: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 8,
+        marginTop: 15,
+        justifyContent : 'space-between',
+        display : 'flex'
     },
     marginChevron: {
-        marginTop: 3,
+        marginTop: 5,
     },
 });
 

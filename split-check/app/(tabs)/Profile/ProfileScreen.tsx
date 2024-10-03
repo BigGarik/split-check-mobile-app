@@ -1,5 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import {View, Text, Button, StyleSheet, TextInput, Alert /*, Platform*/} from 'react-native';
+import {
+    View,
+    Text,
+    Button,
+    StyleSheet,
+    TextInput,
+    Alert,
+    TouchableWithoutFeedback,
+    Keyboard
+} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from "@/app/(tabs)/_layout";
@@ -104,45 +113,51 @@ export default function ProfileScreen() {
         );
     }
 
+    const handleDismissKeyboard = () => {
+        Keyboard.dismiss();
+    };
+
     // User not logged in
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-            <View style={styles.loginContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-                <View style={styles.loginAndRegisterCont}>
-                    <Button title="Login" onPress={handleLogin}/>
-                    <Button title="Resiter" onPress={handRegister}/>
-                </View>
-                {loginError ? (
-                    <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{loginError}</Text>
+        <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
+            <View style={styles.container}>
+                <Text style={styles.title}>Login</Text>
+                <View style={styles.loginContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Username"
+                        value={username}
+                        onChangeText={setUsername}
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Password"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                    />
+                    <View style={styles.loginAndRegisterCont}>
+                        <Button title="Login" onPress={handleLogin}/>
+                        <Button title="Register" onPress={handRegister}/>
                     </View>
-                ) : null}
+                    {loginError ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{loginError}</Text>
+                        </View>
+                    ) : null}
+                </View>
             </View>
-        </View>
+        </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
-    loginAndRegisterCont : {
-      display : 'flex',
-      justifyContent : 'space-evenly',
-      marginTop : 10,
-        flexDirection : 'row'
+    loginAndRegisterCont: {
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        marginTop: 10,
+        flexDirection: 'row'
     },
     container: {
         flex: 1,

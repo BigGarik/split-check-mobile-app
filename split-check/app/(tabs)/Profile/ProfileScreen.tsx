@@ -1,14 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {
-    View,
-    Text,
-    Button,
-    StyleSheet,
-    TextInput,
-    Alert,
-    TouchableWithoutFeedback,
-    Keyboard
-} from 'react-native';
+import {View, Text, Button, StyleSheet, TextInput, Alert /*, Platform*/} from 'react-native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {useNavigation} from '@react-navigation/native';
 import {RootStackParamList} from "@/app/(tabs)/_layout";
@@ -20,7 +11,7 @@ export default function ProfileScreen() {
     const navigation = useNavigation<ProfileScreenNavigationProp>();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const {token, login} = useAuth();
+    const { token, login, logout } = useAuth();
     const [loginError, setLoginError] = useState('');
 
     useEffect(() => {
@@ -48,38 +39,29 @@ export default function ProfileScreen() {
         if (!validateInputs()) return;
 
         try {
-            const formBody = new URLSearchParams();
-            formBody.append('username', username.trim());
-            formBody.append('password', password.trim());
-
             const response = await fetch('https://biggarik.ru/split_check/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: formBody.toString(),
+                body: `username=${encodeURIComponent(username.trim())}&password=${encodeURIComponent(password.trim())}`,
             });
 
             console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
 
             const responseData = await response.json();
             console.log('Response data:', responseData);
 
-            if (response.ok) {
-                if (responseData.token) {
-                    await login(responseData.token);
-                    Alert.alert('Success', `Login successful! Token: ${responseData.token}`);
-                    navigation.navigate('UserHistory');
-                } else {
-                    setLoginError('Login successful, but no token received.');
-                }
+            if (response.ok && responseData.access_token) {
+                await login(responseData.access_token);
+                Alert.alert('Success', 'Login successful!');
+                navigation.navigate('UserHistory');
             } else {
                 let errorMessage = 'Login failed. ';
                 if (response.status === 422) {
                     errorMessage += 'Invalid input data. Please check your username and password.';
                 } else {
-                    errorMessage += responseData.message || `Status: ${response.status}`;
+                    errorMessage += responseData.detail || `Status: ${response.status}`;
                 }
                 setLoginError(errorMessage);
             }
@@ -113,51 +95,45 @@ export default function ProfileScreen() {
         );
     }
 
-    const handleDismissKeyboard = () => {
-        Keyboard.dismiss();
-    };
-
     // User not logged in
     return (
-        <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
-            <View style={styles.container}>
-                <Text style={styles.title}>Login</Text>
-                <View style={styles.loginContainer}>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Username"
-                        value={username}
-                        onChangeText={setUsername}
-                        autoCapitalize="none"
-                    />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Password"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                    />
-                    <View style={styles.loginAndRegisterCont}>
-                        <Button title="Login" onPress={handleLogin}/>
-                        <Button title="Register" onPress={handRegister}/>
-                    </View>
-                    {loginError ? (
-                        <View style={styles.errorContainer}>
-                            <Text style={styles.errorText}>{loginError}</Text>
-                        </View>
-                    ) : null}
+        <View style={styles.container}>
+            <Text style={styles.title}>Login</Text>
+            <View style={styles.loginContainer}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Username"
+                    value={username}
+                    onChangeText={setUsername}
+                    autoCapitalize="none"
+                />
+                <TextInput
+                    style={styles.input}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry
+                />
+                <View style={styles.loginAndRegisterCont}>
+                    <Button title="Login" onPress={handleLogin}/>
+                    <Button title="Resiter" onPress={handRegister}/>
                 </View>
+                {loginError ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{loginError}</Text>
+                    </View>
+                ) : null}
             </View>
-        </TouchableWithoutFeedback>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    loginAndRegisterCont: {
-        display: 'flex',
-        justifyContent: 'space-evenly',
-        marginTop: 10,
-        flexDirection: 'row'
+    loginAndRegisterCont : {
+      display : 'flex',
+      justifyContent : 'space-evenly',
+      marginTop : 10,
+        flexDirection : 'row'
     },
     container: {
         flex: 1,

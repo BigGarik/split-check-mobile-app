@@ -1,6 +1,7 @@
 import { Alert } from 'react-native';
 import * as FileSystem from 'expo-file-system';
 import { NavigationProp } from '@react-navigation/native';
+import { useAuth } from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 
 type RecognizedItem = {
   id?: number;
@@ -57,21 +58,26 @@ export const handleSendImage = async (
   setIsLoading: (loading: boolean) => void,
   navigation: NavigationProp<RootStackParamList, 'BillDetails'>
 ) => {
+  const { token } = useAuth();
+
   if (!capturedImage) {
     Alert.alert('Error', 'No image captured.');
+    return;
+  }
+
+  if (!token) {
+    Alert.alert('Error', 'You are not logged in. Please log in to send images.');
     return;
   }
 
   setIsLoading(true);
 
   try {
-    // Step 1: Validate the image file
     const fileInfo = await FileSystem.getInfoAsync(capturedImage.uri);
     if (!fileInfo.exists) {
       throw new Error('Image file does not exist.');
     }
 
-    // Step 2: Prepare the form data
     const formData = new FormData();
     formData.append('file', {
       uri: capturedImage.uri,
@@ -79,16 +85,19 @@ export const handleSendImage = async (
       type: 'image/jpeg',
     } as any);
 
-    // Step 3: Send the request
     const response = await fetch('https://biggarik.ru/split_check/upload-image/', {
       method: 'POST',
       headers: {
         'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
       },
       body: formData,
     });
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Unauthorized: Your session may have expired. Please log in again.');
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -102,7 +111,6 @@ export const handleSendImage = async (
 
     const recognizedJson: RecognizedJson = responseData.recognized_json;
 
-    // Step 5: Validate and format the data
     if (!Array.isArray(recognizedJson.items)) {
       throw new Error('Unexpected response format: items is not an array');
     }
@@ -132,7 +140,6 @@ export const handleSendImage = async (
 
     console.log('Formatted bill details:', JSON.stringify(billDetails, null, 2));
 
-    // Step 6: Navigate to the BillDetails screen
     navigation.navigate('BillDetails', billDetails);
 
   } catch (error) {
@@ -148,6 +155,8 @@ export const handleSendImage = async (
     setIsLoading(false);
   }
 };
+
+
 
 //
 // import {StackNavigationProp} from '@react-navigation/stack';

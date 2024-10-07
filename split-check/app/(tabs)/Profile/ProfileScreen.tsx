@@ -1,9 +1,18 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, Button, StyleSheet, TextInput, Alert /*, Platform*/} from 'react-native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {useNavigation} from '@react-navigation/native';
-import {RootStackParamList} from "@/app/(tabs)/_layout";
-import {useAuth} from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
+import React, { useState, useEffect } from 'react';
+import {
+    View,
+    Text,
+    Button,
+    StyleSheet,
+    TextInput,
+    Alert,
+    TouchableWithoutFeedback,
+    Keyboard
+} from 'react-native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from '@react-navigation/native';
+import { RootStackParamList } from "@/app/(tabs)/_layout";
+import { useAuth } from "@/app/(tabs)/BillDetails/Utilities/AuthContext";
 
 type ProfileScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Profile'>;
 
@@ -39,23 +48,32 @@ export default function ProfileScreen() {
         if (!validateInputs()) return;
 
         try {
+            const formBody = new URLSearchParams();
+            formBody.append('username', username.trim());
+            formBody.append('password', password.trim());
+
             const response = await fetch('https://biggarik.ru/split_check/token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `username=${encodeURIComponent(username.trim())}&password=${encodeURIComponent(password.trim())}`,
+                body: formBody.toString(),
             });
 
             console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
 
             const responseData = await response.json();
             console.log('Response data:', responseData);
 
-            if (response.ok && responseData.access_token) {
-                await login(responseData.access_token);
-                Alert.alert('Success', 'Login successful!');
-                navigation.navigate('UserHistory');
+            if (response.ok) {
+                if (responseData.access_token) {
+                    await login(responseData.access_token);
+                    Alert.alert('Success', 'Login successful!');
+                    navigation.navigate('UserHistory');
+                } else {
+                    setLoginError('Login successful, but no token received.');
+                }
             } else {
                 let errorMessage = 'Login failed. ';
                 if (response.status === 422) {
@@ -71,13 +89,18 @@ export default function ProfileScreen() {
         }
     };
 
-    const handRegister = () => {
+    const handleRegister = () => {
         console.log('register clicked')
+        // Implement registration logic here
     }
 
     const handleLogout = () => {
-        // logout();
+        logout();
         Alert.alert('Success', 'You have been logged out');
+    };
+
+    const handleDismissKeyboard = () => {
+        Keyboard.dismiss();
     };
 
     if (token) {
@@ -97,43 +120,45 @@ export default function ProfileScreen() {
 
     // User not logged in
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Login</Text>
-            <View style={styles.loginContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Username"
-                    value={username}
-                    onChangeText={setUsername}
-                    autoCapitalize="none"
-                />
-                <TextInput
-                    style={styles.input}
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                />
-                <View style={styles.loginAndRegisterCont}>
-                    <Button title="Login" onPress={handleLogin}/>
-                    <Button title="Resiter" onPress={handRegister}/>
-                </View>
-                {loginError ? (
-                    <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{loginError}</Text>
+        <TouchableWithoutFeedback onPress={handleDismissKeyboard}>
+            <View style={styles.container}>
+                <Text style={styles.title}>Login</Text>
+                <View style={styles.loginContainer}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Username"
+                        value={username}
+                        onChangeText={setUsername}
+                        autoCapitalize="none"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Password"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                    />
+                    <View style={styles.loginAndRegisterCont}>
+                        <Button title="Login" onPress={handleLogin}/>
+                        <Button title="Register" onPress={handleRegister}/>
                     </View>
-                ) : null}
+                    {loginError ? (
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{loginError}</Text>
+                        </View>
+                    ) : null}
+                </View>
             </View>
-        </View>
+        </TouchableWithoutFeedback>
     );
 }
 
 const styles = StyleSheet.create({
-    loginAndRegisterCont : {
-      display : 'flex',
-      justifyContent : 'space-evenly',
-      marginTop : 10,
-        flexDirection : 'row'
+    loginAndRegisterCont: {
+        display: 'flex',
+        justifyContent: 'space-evenly',
+        marginTop: 10,
+        flexDirection: 'row'
     },
     container: {
         flex: 1,

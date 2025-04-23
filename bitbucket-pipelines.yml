@@ -1,0 +1,24 @@
+image: node:18
+
+pipelines:
+  default:
+    - step:
+        name: Install and Build
+        caches:
+          - node
+        script:
+          - npm install -g eas-cli
+          - npm install
+          - eas login --non-interactive -u $EAS_USERNAME -p $EAS_PASSWORD
+          - eas build -p android --profile production --non-interactive
+          - # Дополнительные шаги, например, загрузка артефакта
+    #- step:
+    #    name: Build IOS
+    #    caches:
+    #      - node
+    #    script:
+    #      - npm install -g eas-cli
+    #      - npm install
+    #      - eas login --non-interactive -u $EAS_USERNAME -p $EAS_PASSWORD
+    #      - eas build -p ios --profile production --non-interactive
+          - # Дополнительные шаги, например, загрузка артефакта

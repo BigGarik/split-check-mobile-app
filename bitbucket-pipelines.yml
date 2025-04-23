@@ -1,24 +1,26 @@
 image: node:18
 
 pipelines:
-  default:
-    - step:
-        name: Install and Build
-        caches:
-          - node
-        script:
-          - npm install -g eas-cli
-          - npm install
-          - eas login --non-interactive -u $EAS_USERNAME -p $EAS_PASSWORD
-          - eas build -p android --profile production --non-interactive
-          - # Дополнительные шаги, например, загрузка артефакта
-    #- step:
-    #    name: Build IOS
-    #    caches:
-    #      - node
-    #    script:
-    #      - npm install -g eas-cli
-    #      - npm install
-    #      - eas login --non-interactive -u $EAS_USERNAME -p $EAS_PASSWORD
-    #      - eas build -p ios --profile production --non-interactive
-          - # Дополнительные шаги, например, загрузка артефакта
+  branches:
+    dev:
+      - step:
+          name: Install and Build (Dev Branch)
+          caches:
+            - node
+          script:
+            - echo "Запуск сборки для ветки dev..."
+            - npm install -g eas-cli
+            - npm install
+            - eas login --non-interactive -u $EAS_USERNAME -p $EAS_PASSWORD
+            - eas build -p android --profile development --non-interactive
+            - echo "Сборка для ветки dev завершена."
+          after-script:
+            - echo "Дополнительные действия после сборки для dev (например, уведомления)."
+      - step:
+          name: Deploy to Google Play Store
+          deployment: Google Play Store
+          script:
+            - echo "Деплой на Google Play Store..."            
+            - eas submit -p android --latest --non-interactive --json | jq -r '.id'
+            - STEP_ID=$(eas submit -p android --latest --non-interactive --json | jq -r '.id')
+            - echo "Приложение отправлено на рассмотрение в Google Play Store (ID задачи:$STEP_ID)"
